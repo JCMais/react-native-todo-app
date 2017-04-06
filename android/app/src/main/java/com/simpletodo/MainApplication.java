@@ -1,4 +1,4 @@
-package com.codechallengeentria;
+package com.simpletodo;
 
 import android.app.Application;
 

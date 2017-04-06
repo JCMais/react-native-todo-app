@@ -1,4 +1,7 @@
 {
-  "name": "codechallengeentria",
-  "displayName": "codechallengeentria"
+    "name": "SimpleTodo",
+    "displayName": "Simple Todo",
+    "icon": {
+        "default": "logo.png"
+    }
 }

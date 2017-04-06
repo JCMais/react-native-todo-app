@@ -1,3 +1,4 @@
+; https://github.com/facebook/flow/issues/869
 [ignore]
 ; We fork some components by platform
 .*/*[.]android.js
@@ -13,6 +14,9 @@
 ; "node_modules/react-native" but in the source repo it is in the root
 .*/Libraries/react-native/React.js
 .*/Libraries/react-native/ReactNative.js
+
+.*/node_modules/react-static-container/.*
+.*/node_modules/react-relay/lib/relayUnstableBatchedUpdates.native.js
 
 [include]
 
