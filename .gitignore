@@ -53,3 +53,11 @@ buck-out/
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
+
+dist
+debug
+coverage
+docs
+
+# Env
+.env

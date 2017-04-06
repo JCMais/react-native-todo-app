@@ -12,14 +12,15 @@ export default class SimpleTodo extends Component {
         return (
             <View style={styles.container}>
                 <Text style={styles.welcome}>
-                    Welcome to React Native!
+                    Paragráfo Inicial - Título
                 </Text>
                 <Text style={styles.instructions}>
-                    To get started, edit index.android.js
+                    Subtítulo - :D
                 </Text>
                 <Text style={styles.instructions}>
-                    Double tap R on your keyboard to reload,{'\n'}
-                    Shake or press menu button for dev menu
+                    Texto com algum contéudo,{'\n'}
+                    Balance para opções de desenvolvimento,{'\n'}
+                    como hot reloading.
                 </Text>
             </View>
         )
