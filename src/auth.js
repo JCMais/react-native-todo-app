@@ -1,5 +1,5 @@
 // @flow
-import { UserType } from './ProjectTypes'
+import { UserInterface } from './ProjectTypes'
 
 import jwt from 'jsonwebtoken'
 import { User } from './model'
@@ -26,6 +26,6 @@ export async function getUser( token: string ) {
     }
 }
 
-export function generateToken( user: UserType ) {
+export function generateToken( user: UserInterface ) {
     return `JWT ${jwt.sign( { id : user._id }, jwtSecret )}`
 }

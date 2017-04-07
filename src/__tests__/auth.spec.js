@@ -3,13 +3,14 @@ import { graphql } from 'graphql'
 
 import { schema } from '../schema'
 import { User } from '../model'
-import { setupTest } from '../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../test/helper'
 
 import { getUser, generateToken } from '../auth'
 
 const { ObjectId } = mongoose.Types
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 describe( 'getUser', () => {
 
@@ -37,16 +38,19 @@ describe( 'getUser', () => {
     } )
 
     it( 'should return user from a valid token', async () => {
+
         const viewer = new User( {
-            name  : 'user',
-            email : 'user@example.com',
+            name    : 'user',
+            email   : 'user@example.com',
+            password: 'pass'
         } )
+
         await viewer.save()
 
         const token  = generateToken( viewer )
         const {user} = await getUser( token )
 
-        expect( user.name ).toBe( user.name )
-        expect( user.email ).toBe( user.email )
+        expect( user.name ).toBe( viewer.name )
+        expect( user.email ).toBe( viewer.email )
     } )
 } )

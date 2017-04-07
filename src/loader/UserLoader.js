@@ -1,14 +1,15 @@
 // @flow
-import { UserType } from '../ProjectTypes'
-
 import DataLoader from 'dataloader'
+import mongoose from 'mongoose'
+
+import { UserInterface } from '../ProjectTypes'
 import { User as UserModel } from '../model'
 import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
 
 export default class User {
 
     id: string
-    _id: string
+    _id: mongoose.Types.ObjectId
     name: string
     email: string
     active: boolean
@@ -18,14 +19,16 @@ export default class User {
         return Promise.all( ids.map( id => UserModel.findOne( {_id : id} ) ) )
     })
 
-    constructor( data: UserType, viewer: UserType ) {
+    constructor( data: UserInterface, viewer: UserInterface ) {
+        ( this: UserInterface ); // http://stackoverflow.com/a/38224059
 
         this.id   = data.id
         this._id  = data._id
         this.name = data.name
 
         // you can only see your own email, and your active status
-        if ( viewer && viewer._id === data._id ) {
+        //console.log( viewer, data, viewer.id === data.id, viewer._id === data._id )
+        if ( viewer && viewer._id.equals( data._id ) ) {
 
             this.email  = data.email
             this.active = data.active

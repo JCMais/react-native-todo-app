@@ -1,14 +1,17 @@
 import { graphql } from 'graphql'
 
+import errors from '../../errors'
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { setupTest } from '../../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../../test/helper'
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should not change password of non authorized user', async () => {
+
     const query = `
-    mutation M {
+    mutation ChangeMyPass {
       ChangePassword(input: {
         clientMutationId: "abc"
         oldPassword: "old"
@@ -23,10 +26,9 @@ it( 'should not change password of non authorized user', async () => {
     const context   = {}
 
     const result   = await graphql( schema, query, rootValue, context )
-    const { errors } = result
 
-    expect( errors.length ).toBe( 1 )
-    expect( errors[0].message ).toBe( 'invalid user' )
+    expect( result.errors.length ).toBe( 1 )
+    expect( result.errors[0].message ).toBe( errors.INVALID_USER )
 } )
 
 it( 'should not change password if oldPassword is invalid', async () => {
@@ -40,7 +42,7 @@ it( 'should not change password if oldPassword is invalid', async () => {
     await user.save()
 
     const query = `
-    mutation M {
+    mutation ChangeMyPass {
       ChangePassword(input: {
         clientMutationId: "abc"
         oldPassword: "old"
@@ -48,7 +50,7 @@ it( 'should not change password if oldPassword is invalid', async () => {
       }) {
         clientMutationId
         error
-      }     
+      }
     }`
 
     const rootValue = {}
@@ -57,7 +59,7 @@ it( 'should not change password if oldPassword is invalid', async () => {
     const result           = await graphql( schema, query, rootValue, context )
     const {ChangePassword} = result.data
 
-    expect( ChangePassword.error ).toBe( 'INVALID_PASSWORD' )
+    expect( ChangePassword.error ).toBe( errors.INVALID_PASSWORD )
 } )
 
 it( 'should change password if oldPassword is correct', async () => {
@@ -65,14 +67,14 @@ it( 'should change password if oldPassword is correct', async () => {
     const password = 'awesome'
 
     const user = new User( {
-        name  : 'user',
-        email : 'awesome@example.com',
-        password,
+        name     : 'user',
+        email    : 'awesome@example.com',
+        password
     } )
     await user.save()
 
     const query = `
-    mutation M {
+    mutation ChangeMyPass {
       ChangePassword(input: {
         clientMutationId: "abc"
         oldPassword: "${password}"
@@ -87,7 +89,7 @@ it( 'should change password if oldPassword is correct', async () => {
     const context   = { user }
 
     const result           = await graphql( schema, query, rootValue, context )
-    const {ChangePassword} = result.data
+    const { ChangePassword } = result.data
 
     expect( ChangePassword.error ).toBe( null )
 } )

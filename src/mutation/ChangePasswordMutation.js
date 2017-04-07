@@ -5,6 +5,7 @@ import {
 
 import { mutationWithClientMutationId } from 'graphql-relay'
 
+import errors from '../errors'
 import UserType from '../type/UserType'
 import UserLoader from '../loader/UserLoader'
 
@@ -33,7 +34,7 @@ export default mutationWithClientMutationId( {
 
         if ( !user ) {
 
-            throw new Error( 'invalid user' )
+            throw new Error( errors.INVALID_USER )
         }
 
         const correctPassword = await user.authenticate( oldPassword )
@@ -41,7 +42,7 @@ export default mutationWithClientMutationId( {
         if ( !correctPassword ) {
 
             return {
-                error : 'INVALID_PASSWORD',
+                error : errors.INVALID_PASSWORD,
             }
         }
 

@@ -3,9 +3,10 @@ import { toGlobalId } from 'graphql-relay'
 
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { setupTest } from '../../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../../test/helper'
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should get user by id', async () => {
 

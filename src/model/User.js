@@ -9,11 +9,12 @@ const Schema = new mongoose.Schema( {
     },
     password : {
         type   : String,
+        required: true,
         hidden : true,
     },
     email    : {
         type     : String,
-        required : false,
+        required : true,
         index    : true,
     },
     active   : {

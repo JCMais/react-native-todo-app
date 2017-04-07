@@ -1,11 +1,13 @@
 import { graphql } from 'graphql'
 
+import errors from '../../errors'
 import { schema } from '../../schema'
 import { User } from '../../model'
 import { generateToken } from '../../auth'
-import { setupTest } from '../../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../../test/helper'
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should not login if email is not in the database', async () => {
 
@@ -29,7 +31,7 @@ it( 'should not login if email is not in the database', async () => {
     const {LoginEmail} = result.data
 
     expect( LoginEmail.token ).toBe( null )
-    expect( LoginEmail.error ).toBe( 'INVALID_EMAIL_PASSWORD' )
+    expect( LoginEmail.error ).toBe( errors.INVALID_EMAIL_PASSWORD )
 } )
 
 it( 'should not login with wrong email', async () => {
@@ -61,7 +63,7 @@ it( 'should not login with wrong email', async () => {
     const {LoginEmail} = result.data
 
     expect( LoginEmail.token ).toBe( null )
-    expect( LoginEmail.error ).toBe( 'INVALID_EMAIL_PASSWORD' )
+    expect( LoginEmail.error ).toBe( errors.INVALID_EMAIL_PASSWORD )
 } )
 
 it( 'should generate token when email and password is correct', async () => {

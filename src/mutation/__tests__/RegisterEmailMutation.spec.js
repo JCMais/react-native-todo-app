@@ -1,11 +1,13 @@
 import { graphql } from 'graphql'
 
+import errors from '../../errors'
 import { schema } from '../../schema'
 import { User } from '../../model'
 import { generateToken } from '../../auth'
-import { setupTest } from '../../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../../test/helper'
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should not register with the an existing email', async () => {
 
@@ -38,7 +40,7 @@ it( 'should not register with the an existing email', async () => {
     const { RegisterEmail } = result.data
 
     expect( RegisterEmail.token ).toBe( null )
-    expect( RegisterEmail.error ).toBe( 'EMAIL_ALREADY_IN_USE' )
+    expect( RegisterEmail.error ).toBe( errors.EMAIL_ALREADY_IN_USE )
 } )
 
 it( 'should create a new user with parameters are valid', async () => {

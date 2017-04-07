@@ -11,7 +11,7 @@ import ViewerType from '../type/ViewerType'
 import UserLoader from '../loader/UserLoader'
 import UserType from '../type/UserType'
 
-const { nodeField, nodeInterface } = nodeDefinitions(
+const { nodeInterface, nodeField } = nodeDefinitions(
 
     // A method that maps from a global id to an object
     async ( globalId, { user } ) => {
@@ -43,5 +43,5 @@ const { nodeField, nodeInterface } = nodeDefinitions(
     },
 )
 
-export const NodeField     = nodeField
 export const NodeInterface = nodeInterface
+export const NodeField     = nodeField

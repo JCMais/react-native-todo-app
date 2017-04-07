@@ -3,6 +3,7 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql'
 import { mutationWithClientMutationId } from 'graphql-relay'
 
+import errors from '../errors'
 import { User } from '../model'
 import { generateToken } from '../auth'
 
@@ -34,7 +35,7 @@ export default mutationWithClientMutationId( {
 
             return {
                 token : null,
-                error : 'INVALID_EMAIL_PASSWORD',
+                error : errors.INVALID_EMAIL_PASSWORD,
             }
         }
 
@@ -44,7 +45,7 @@ export default mutationWithClientMutationId( {
 
             return {
                 token : null,
-                error : 'INVALID_EMAIL_PASSWORD',
+                error : errors.INVALID_EMAIL_PASSWORD,
             }
         }
 

@@ -3,9 +3,10 @@ import { toGlobalId } from 'graphql-relay'
 
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { setupTest } from '../../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../../test/helper'
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should load Viewer', async () => {
 
@@ -43,7 +44,9 @@ it( 'should load User', async () => {
     const user = new User( {
         name  : 'user',
         email : 'user@example.com',
+        password : 'pass'
     } )
+
     await user.save()
 
     const query = `

@@ -7,8 +7,8 @@ import {
 
 import { mutationWithClientMutationId } from 'graphql-relay'
 
+import errors from '../errors'
 import { User } from '../model'
-
 import { generateToken } from '../auth'
 
 export default mutationWithClientMutationId( {
@@ -42,7 +42,7 @@ export default mutationWithClientMutationId( {
 
             return {
                 token : null,
-                error : 'EMAIL_ALREADY_IN_USE',
+                error : errors.EMAIL_ALREADY_IN_USE,
             }
         }
 

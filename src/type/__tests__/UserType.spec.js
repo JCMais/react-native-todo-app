@@ -2,9 +2,10 @@ import { graphql } from 'graphql'
 
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { setupTest } from '../../../test/helper'
+import { connectToDatabase, clearDatabase } from '../../../test/helper'
 
-beforeEach( async () => await setupTest() )
+beforeEach( async () => await connectToDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should not show email of other users', async () => {
 
