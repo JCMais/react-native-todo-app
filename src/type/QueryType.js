@@ -1,22 +1,22 @@
 // @flow
 
-import { GraphQLObjectType } from 'graphql';
-import { NodeField } from '../interface/NodeInterface';
+import { GraphQLObjectType } from 'graphql'
+import { NodeField } from '../interface/NodeInterface'
 
-import ViewerLoader from '../loader/ViewerLoader';
-import ViewerType from './ViewerType';
+import ViewerLoader from '../loader/ViewerLoader'
+import ViewerType from './ViewerType'
 
-export default new GraphQLObjectType({
-  name: 'Query',
-  description: 'The root of all... queries',
-  fields: () => ({
-    node: NodeField,
-    viewer: {
-      type: ViewerType,
-      args: {},
-      resolve: async (obj, args, { user }) =>
-         await ViewerLoader.load(user ? user._id : null)
-      ,
-    },
-  }),
-});
+export default new GraphQLObjectType( {
+    name        : 'Query',
+    description : 'The root of all... queries',
+    fields      : () => ({
+        node   : NodeField,
+        viewer : {
+            type    : ViewerType,
+            args    : {},
+            resolve : async ( obj, args, {user} ) =>
+                await ViewerLoader.load( user ? user._id : null )
+            ,
+        },
+    }),
+} )

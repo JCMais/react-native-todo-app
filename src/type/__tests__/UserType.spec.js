@@ -1,28 +1,30 @@
-import { graphql } from 'graphql';
-import { schema } from '../../schema';
-import {
-  User,
-} from '../../model';
-import { setupTest } from '../../../test/helper';
+import { graphql } from 'graphql'
 
-beforeEach(async () => await setupTest());
+import { schema } from '../../schema'
+import { User } from '../../model'
+import { setupTest } from '../../../test/helper'
 
-it('should not show email of other users', async () => {
-  const user = new User({
-    name: 'user',
-    email: 'user@example.com',
-    password: 'password'
-  });
-  await user.save();
+beforeEach( async () => await setupTest() )
 
-  const user1 = new User({
-    name: 'awesome',
-    email: 'awesome@example.com',
-    password: 'password'
-  });
-  await user1.save();
+it( 'should not show email of other users', async () => {
 
-  const query = `
+    const user = new User({
+        name     : 'user',
+        email    : 'user@example.com',
+        password : 'password'
+    })
+
+    await user.save()
+
+    const user1 = new User( {
+        name     : 'awesome',
+        email    : 'awesome@example.com',
+        password : 'password'
+    } )
+
+    await user1.save()
+
+    const query = `
     query Q {
       viewer {
         users(first: 2) {
@@ -36,18 +38,17 @@ it('should not show email of other users', async () => {
           }
         }
       }
-    }
-  `;
+    }`
 
-  const rootValue = {};
-  const context = { user };
+    const rootValue = {}
+    const context   = { user }
 
-  const result = await graphql(schema, query, rootValue, context);
-  const { edges } = result.data.viewer.users;
+    const result  = await graphql( schema, query, rootValue, context )
+    const { edges } = result.data.viewer.users
 
-  expect(edges[0].node.name).toBe(user.name);
-  expect(edges[0].node.email).toBe(user.email);
+    expect( edges[0].node.name ).toBe( user.name )
+    expect( edges[0].node.email ).toBe( user.email )
 
-  expect(edges[1].node.name).toBe(user1.name);
-  expect(edges[1].node.email).toBe(null);
-});
+    expect( edges[1].node.name ).toBe( user1.name )
+    expect( edges[1].node.email ).toBe( null )
+} )

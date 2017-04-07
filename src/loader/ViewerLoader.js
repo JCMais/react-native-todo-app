@@ -1,21 +1,22 @@
 // @flow
-
 type ViewerType = {
-  id: ?string,
+    id: ?string,
 }
 
 export default class Viewer {
-  id: ?string;
 
-  constructor(data: ViewerType) {
-    this.id = data.id;
-  }
+    id: ?string
 
-  static async load(userId) {
-    const data = {
-      id: userId,
-    };
+    constructor( data: ViewerType ) {
+        this.id = data.id
+    }
 
-    return new Viewer(data);
-  }
+    static async load( userId ) {
+
+        const data = {
+            id : userId,
+        }
+
+        return new Viewer( data )
+    }
 }

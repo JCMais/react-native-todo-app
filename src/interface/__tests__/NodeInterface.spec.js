@@ -1,24 +1,25 @@
-import { graphql } from 'graphql';
-import { toGlobalId } from 'graphql-relay';
-import { schema } from '../../schema';
-import {
-  User,
-} from '../../model';
-import { setupTest } from '../../../test/helper';
+import { graphql } from 'graphql'
+import { toGlobalId } from 'graphql-relay'
 
-beforeEach(async () => await setupTest());
+import { schema } from '../../schema'
+import { User } from '../../model'
+import { setupTest } from '../../../test/helper'
 
-it('should load Viewer', async () => {
-  const user = new User({
-    name: 'user',
-    email: 'user@example.com',
-    password: 'user'
-  });
-  await user.save();
+beforeEach( async () => await setupTest() )
 
-  const query = `
+it( 'should load Viewer', async () => {
+
+    const user = new User( {
+        name     : 'user',
+        email    : 'user@example.com',
+        password : 'user'
+    } )
+
+    await user.save()
+
+    const query = `
     query Q {
-      node(id: "${toGlobalId('Viewer', user._id)}") {
+      node(id: "${toGlobalId( 'Viewer', user._id )}") {
         ... on Viewer {
           me {
              name
@@ -26,39 +27,40 @@ it('should load Viewer', async () => {
         }
       }     
     }
-  `;
+  `
 
-  const rootValue = {};
-  const context = { user };
+    const rootValue = {}
+    const context   = {user}
 
-  const result = await graphql(schema, query, rootValue, context);
-  const { node } = result.data;
+    const result = await graphql( schema, query, rootValue, context )
+    const {node} = result.data
 
-  expect(node.me.name).toBe(user.name);
-});
+    expect( node.me.name ).toBe( user.name )
+} )
 
-it('should load User', async () => {
-  const user = new User({
-    name: 'user',
-    email: 'user@example.com',
-  });
-  await user.save();
+it( 'should load User', async () => {
 
-  const query = `
+    const user = new User( {
+        name  : 'user',
+        email : 'user@example.com',
+    } )
+    await user.save()
+
+    const query = `
     query Q {
-      node(id: "${toGlobalId('User', user._id)}") {
+      node(id: "${toGlobalId( 'User', user._id )}") {
         ... on User {
           name
         }
       }     
     }
-  `;
+  `
 
-  const rootValue = {};
-  const context = {};
+    const rootValue = {}
+    const context   = {}
 
-  const result = await graphql(schema, query, rootValue, context);
-  const { node } = result.data;
+    const result = await graphql( schema, query, rootValue, context )
+    const {node} = result.data
 
-  expect(node.name).toBe(user.name);
-});
+    expect( node.name ).toBe( user.name )
+} )

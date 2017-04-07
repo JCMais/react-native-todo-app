@@ -1,60 +1,62 @@
 // @flow
 
 import {
-  GraphQLString,
-  GraphQLNonNull,
-} from 'graphql';
-import {
-  mutationWithClientMutationId,
-} from 'graphql-relay';
-import {
-  User,
-} from '../model';
-import { generateToken } from '../auth';
+    GraphQLString,
+    GraphQLNonNull,
+} from 'graphql'
 
-export default mutationWithClientMutationId({
-  name: 'RegisterEmail',
-  inputFields: {
-    name: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    email: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-    password: {
-      type: new GraphQLNonNull(GraphQLString),
-    },
-  },
-  mutateAndGetPayload: async ({ name, email, password }) => {
-    let user = await User.findOne({ email: email.toLowerCase() });
+import { mutationWithClientMutationId } from 'graphql-relay'
 
-    if (user) {
-      return {
-        token: null,
-        error: 'EMAIL_ALREADY_IN_USE',
-      };
-    }
+import { User } from '../model'
 
-    user = new User({
-      name,
-      email,
-      password,
-    });
-    await user.save();
+import { generateToken } from '../auth'
 
-    return {
-      token: generateToken(user),
-      error: null,
-    };
-  },
-  outputFields: {
-    token: {
-      type: GraphQLString,
-      resolve: ({ token }) => token,
+export default mutationWithClientMutationId( {
+    name                : 'RegisterEmail',
+    inputFields         : {
+        name     : {
+            type : new GraphQLNonNull( GraphQLString ),
+        },
+        email    : {
+            type : new GraphQLNonNull( GraphQLString ),
+        },
+        password : {
+            type : new GraphQLNonNull( GraphQLString ),
+        },
     },
-    error: {
-      type: GraphQLString,
-      resolve: ({ error }) => error,
+    outputFields        : {
+        token : {
+            type    : GraphQLString,
+            resolve : ( {token} ) => token,
+        },
+        error : {
+            type    : GraphQLString,
+            resolve : ( {error} ) => error,
+        },
     },
-  },
-});
+    mutateAndGetPayload : async ( { name, email, password } ) => {
+
+        let user = await User.findOne( { email : email.toLowerCase() } )
+
+        if ( user ) {
+
+            return {
+                token : null,
+                error : 'EMAIL_ALREADY_IN_USE',
+            }
+        }
+
+        user = new User( {
+            name,
+            email,
+            password,
+        } )
+
+        await user.save()
+
+        return {
+            token : generateToken( user ),
+            error : null,
+        }
+    },
+} )

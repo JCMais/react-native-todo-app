@@ -1,53 +1,55 @@
 import {
-  GraphQLString,
-  GraphQLNonNull,
-} from 'graphql';
-import {
-  mutationWithClientMutationId,
-} from 'graphql-relay';
+    GraphQLString,
+    GraphQLNonNull,
+} from 'graphql'
 
-import UserType from '../type/UserType';
-import UserLoader from '../loader/UserLoader';
+import { mutationWithClientMutationId } from 'graphql-relay'
 
-export default mutationWithClientMutationId({
-  name: 'ChangePassword',
-  inputFields: {
-    oldPassword: {
-      type: new GraphQLNonNull(GraphQLString),
+import UserType from '../type/UserType'
+import UserLoader from '../loader/UserLoader'
+
+export default mutationWithClientMutationId( {
+    name                : 'ChangePassword',
+    inputFields         : {
+        oldPassword : {
+            type : new GraphQLNonNull( GraphQLString ),
+        },
+        password    : {
+            type        : new GraphQLNonNull( GraphQLString ),
+            description : 'user new password',
+        },
     },
-    password: {
-      type: new GraphQLNonNull(GraphQLString),
-      description: 'user new password',
+    outputFields        : {
+        error : {
+            type    : GraphQLString,
+            resolve : ( {error} ) => error,
+        },
+        me    : {
+            type    : UserType,
+            resolve : ( obj, args, { user } ) => UserLoader.load( user, user.id ),
+        },
     },
-  },
-  mutateAndGetPayload: async ({ oldPassword, password }, { user }) => {
-    if (!user) {
-      throw new Error('invalid user');
-    }
+    mutateAndGetPayload : async ( { oldPassword, password }, { user } ) => {
 
-    const correctPassword = await user.authenticate(oldPassword);
+        if ( !user ) {
 
-    if (!correctPassword) {
-      return {
-        error: 'INVALID_PASSWORD',
-      };
-    }
+            throw new Error( 'invalid user' )
+        }
 
-    user.password = password;
-    await user.save();
+        const correctPassword = await user.authenticate( oldPassword )
 
-    return {
-      error: null,
-    };
-  },
-  outputFields: {
-    error: {
-      type: GraphQLString,
-      resolve: ({ error }) => error,
+        if ( !correctPassword ) {
+
+            return {
+                error : 'INVALID_PASSWORD',
+            }
+        }
+
+        user.password = password
+        await user.save()
+
+        return {
+            error : null,
+        }
     },
-    me: {
-      type: UserType,
-      resolve: (obj, args, { user }) => UserLoader.load(user, user.id),
-    },
-  },
-});
+} )
