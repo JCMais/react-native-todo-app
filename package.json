@@ -10,15 +10,16 @@
     "scripts": {
         "build": "npm run clear && babel src --ignore *.spec.js --source-maps inline --out-dir dist --copy-files",
         "clear": "rimraf ./dist",
-        "start": "node dist/server.js",
+        "start": "babel-node src/server.js",
+        "start:production": "node dist/server.js",
         "start:app": "node node_modules/react-native/local-cli/cli.js start",
         "repl": "nodemon --config ./repl/nodemon.json ./repl.js --exec babel-node",
         "test": "jest --forceExit --runInBand --coverage",
         "test:watch": "jest --watch --coverage",
         "update-schema": "babel-node ./scripts/updateSchema.js",
         "watch": "nodemon src/server.js --exec babel-node",
-        "flow" : "flow status",
-        "flow:stop" : "flow stop"
+        "flow": "flow status",
+        "flow:stop": "flow stop"
     },
     "dependencies": {
         "babel-polyfill": "^6.23.0",
@@ -35,11 +36,15 @@
         "koa-convert": "^1.2.0",
         "koa-cors": "0.0.16",
         "koa-graphql": "^0.6.2",
+        "koa-graphql-batch": "^1.1.0",
         "koa-logger": "^2.0.1",
+        "koa-router": "^7.1.1",
         "mongoose": "^4.9.3",
         "react": "16.0.0-alpha.6",
         "react-native": "0.43.2",
+        "react-navigation": "^1.0.0-beta.7",
         "react-relay": "~0.10.0",
+        "react-relay-network-layer": "^2.0.1",
         "source-map-support": "^0.4.14"
     },
     "devDependencies": {

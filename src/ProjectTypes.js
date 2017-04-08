@@ -7,3 +7,13 @@ export interface UserInterface {
     email: string,
     active: boolean,
 }
+
+export type DataLoaders = {
+    User : DataLoader
+}
+
+export type GraphQLContext = {
+    user : UserInterface,
+    req  : Object,
+    dataLoaders : DataLoaders
+}

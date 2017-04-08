@@ -18,6 +18,7 @@
 
 .*/node_modules/react-static-container/.*
 .*/node_modules/react-relay/lib/relayUnstableBatchedUpdates.native.js
+.*/node_modules/react-navigation/.*
 
 [include]
 

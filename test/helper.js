@@ -1,7 +1,8 @@
 // @flow
 import mongoose from 'mongoose';
 
-const {ObjectId} = mongoose.Types;
+import dataLoaders from '../src/loader'
+import type { UserInterface } from '../src/ProjectTypes'
 
 process.env.NODE_ENV = 'test';
 
@@ -54,4 +55,17 @@ export async function connectToDatabase() {
 export async function clearDatabase() {
 
     return mongoose.connection.db.dropDatabase()
+}
+
+export function getContext( user: ?UserInterface ) {
+
+    const generatedDataLoaders = {}
+
+    Object.keys( dataLoaders ).forEach( item => { generatedDataLoaders[item] = dataLoaders[item].getLoader() } )
+
+    return {
+        user,
+        req : {},
+        dataLoaders : generatedDataLoaders
+    }
 }

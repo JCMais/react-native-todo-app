@@ -4,32 +4,46 @@ import 'isomorphic-fetch'
 import 'source-map-support/register'
 
 import Koa from 'koa'
+import Router from 'koa-router'
+
 import cors from 'koa-cors'
-import graphqlHTTP from 'koa-graphql'
 import convert from 'koa-convert'
 import logger from 'koa-logger'
+import bodyParser from 'koa-bodyparser'
+
+import graphqlHttp from 'koa-graphql'
+import graphqlBatchHttpWrapper from 'koa-graphql-batch'
 
 import connectDatabase from './database'
+import dataLoaders from './loader'
+import { getUser } from './auth'
 import { schema } from './schema'
 import { jwtSecret } from './config'
-import { getUser } from './auth'
 import { graphqlPort } from './config'
 
 const app = new Koa()
+const router = new Router()
 
 app.keys = jwtSecret
 
-app.use( logger() )
-app.use( convert( cors() ) )
-app.use( convert( graphqlHTTP( async ( req ) => {
+// https://github.com/nodkz/react-relay-network-layer/blob/master/examples/dataLoaderPerBatchRequest.js
+
+const graphqlSettingsPerReq = async ( req ) => {
 
     const { user } = await getUser( req.header.authorization )
 
+    const generatedDataLoaders = {}
+
+    Object.keys( dataLoaders ).forEach( item => { generatedDataLoaders[item] = dataLoaders[item].getLoader() } )
+
     return {
+
         graphiql    : process.env.NODE_ENV !== 'production',
         schema,
         context     : {
             user,
+            req,
+            dataLoaders : generatedDataLoaders
         },
         formatError : ( error ) => {
             console.log( error.message )
@@ -39,13 +53,34 @@ app.use( convert( graphqlHTTP( async ( req ) => {
             return {
                 message   : error.message,
                 locations : error.locations,
-                stack     : error.stack,
+                stack     : process.env.NODE_ENV === 'development' ? error.stack.split( '\n' ) : null,
             }
         },
     }
-} ) ) )
+}
 
-(async () => {
+const graphqlServer = convert( graphqlHttp( graphqlSettingsPerReq ) )
+
+// graphql batch query route
+router.all(
+    '/graphql/batch',
+    bodyParser(),
+    graphqlBatchHttpWrapper( graphqlServer )
+)
+
+// graphql standard route
+router.all(
+    '/graphql',
+    graphqlServer
+)
+
+app.use( logger() )
+app.use( convert( cors() ) )
+app.use( router.routes() ).use( router.allowedMethods() )
+
+// we need to capture the resulting promise, because babel has an issue
+//  compilling the below IIFE.
+const executionPromise = (async () => {
 
     try {
 

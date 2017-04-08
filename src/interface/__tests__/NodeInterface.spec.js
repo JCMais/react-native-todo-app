@@ -3,43 +3,12 @@ import { toGlobalId } from 'graphql-relay'
 
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { connectToDatabase, clearDatabase } from '../../../test/helper'
+import { connectToDatabase, clearDatabase, getContext } from '../../../test/helper'
 
 beforeEach( async () => await connectToDatabase() )
-afterEach( async () => await clearDatabase() )
+///afterEach( async () => await clearDatabase() )
 
-it( 'should load Viewer', async () => {
-
-    const user = new User( {
-        name     : 'user',
-        email    : 'user@example.com',
-        password : 'user'
-    } )
-
-    await user.save()
-
-    const query = `
-    query Q {
-      node(id: "${toGlobalId( 'Viewer', user._id )}") {
-        ... on Viewer {
-          me {
-             name
-          }
-        }
-      }     
-    }
-  `
-
-    const rootValue = {}
-    const context   = {user}
-
-    const result = await graphql( schema, query, rootValue, context )
-    const {node} = result.data
-
-    expect( node.me.name ).toBe( user.name )
-} )
-
-it( 'should load User', async () => {
+it( 'should load logged User', async () => {
 
     const user = new User( {
         name  : 'user',
@@ -51,19 +20,52 @@ it( 'should load User', async () => {
 
     const query = `
     query Q {
-      node(id: "${toGlobalId( 'User', user._id )}") {
-        ... on User {
-          name
-        }
-      }     
-    }
-  `
+        node(id: "${toGlobalId( 'User', user.id )}") {
+            ... on User {
+                name
+            }
+        }     
+    }`
 
     const rootValue = {}
-    const context   = {}
+    const context   = getContext( user )
 
     const result = await graphql( schema, query, rootValue, context )
     const {node} = result.data
 
     expect( node.name ).toBe( user.name )
+} )
+
+it( 'should not load not logged User', async () => {
+
+    const loggedUser = new User( {
+        name  : 'Logged User',
+        email : 'logged-user@example.com'
+    } )
+
+    await loggedUser.save()
+
+    const anotherUser = new User( {
+        name  : 'Another User',
+        email : 'another-user@example.com'
+    } )
+
+    await anotherUser.save()
+
+    const query = `
+    query Q {
+        node(id: "${toGlobalId( 'User', anotherUser.id )}") {
+            ... on User {
+                name
+            }
+        }     
+    }`
+
+    const rootValue = {}
+    const context   = getContext( loggedUser )
+
+    const result = await graphql( schema, query, rootValue, context )
+    const {node} = result.data
+
+    expect( node ).toBe( null )
 } )

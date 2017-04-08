@@ -3,8 +3,8 @@
 import { GraphQLObjectType } from 'graphql'
 import { NodeField } from '../interface/NodeInterface'
 
-import ViewerLoader from '../loader/ViewerLoader'
-import ViewerType from './ViewerType'
+import UserLoader from '../loader/UserLoader'
+import UserType from './UserType'
 
 export default new GraphQLObjectType( {
     name        : 'Query',
@@ -12,11 +12,9 @@ export default new GraphQLObjectType( {
     fields      : () => ({
         node   : NodeField,
         viewer : {
-            type    : ViewerType,
+            type    : UserType,
             args    : {},
-            resolve : async ( obj, args, {user} ) =>
-                await ViewerLoader.load( user ? user._id : null )
-            ,
+            resolve : async ( obj, args, ctx, info ) => await UserLoader.load( ctx, ctx.user ? ctx.user.id : null ),
         },
     }),
 } )

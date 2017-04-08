@@ -1,12 +1,13 @@
 // @flow
-
 import {
+    GraphQLBoolean,
     GraphQLObjectType,
     GraphQLString,
-    GraphQLBoolean,
 } from 'graphql'
 
-import { globalIdField } from 'graphql-relay'
+import {
+    globalIdField,
+} from 'graphql-relay'
 
 import { NodeInterface } from '../interface/NodeInterface'
 

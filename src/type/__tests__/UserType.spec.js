@@ -2,56 +2,35 @@ import { graphql } from 'graphql'
 
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { connectToDatabase, clearDatabase } from '../../../test/helper'
+import { connectToDatabase, clearDatabase, getContext } from '../../../test/helper'
 
 beforeEach( async () => await connectToDatabase() )
-//afterEach( async () => await clearDatabase() )
+afterEach( async () => await clearDatabase() )
 
-it( 'should not show email of other users', async () => {
+it( 'should return current logged user', async () => {
 
-    const user = new User({
+    const user = new User( {
         name     : 'user',
         email    : 'user@example.com'
-    })
+    } )
 
     await user.save()
 
-    const user1 = new User( {
-        name     : 'awesome',
-        email    : 'awesome@example.com'
-    } )
-
-    await user1.save()
-
     const query = `
     query Q {
-      viewer {
-        users(first: 2) {
-          edges {
-            node {  
-              _id
-              name
-              email
-              active
-            }
-          }
+        viewer {
+            name
+            email
         }
-      }
     }`
 
     const rootValue = {}
-    const context   = { user }
+    const context   = getContext( user )
 
-    const result  = await graphql( schema, query, rootValue, context )
-    console.log( user, user1, result )
+    const result   = await graphql( schema, query, rootValue, context )
 
-    return;
+    const { viewer } = result.data
 
-    const { edges } = result.data.viewer.users
-
-    expect( edges[0].node.name ).toBe( user.name )
-    expect( edges[0].node.email ).toBe( user.email )
-
-    expect( edges[1].node.name ).toBe( user1.name )
-    expect( edges[1].node.email ).toBe( null )
-} )
+    expect( viewer.name ).toBe( user.name )
+    expect( viewer.email ).toBe( user.email )
+})

@@ -9,8 +9,7 @@ const Schema = new mongoose.Schema( {
     },
     password : {
         type   : String,
-        required: true,
-        hidden : true,
+        required: false
     },
     email    : {
         type     : String,
