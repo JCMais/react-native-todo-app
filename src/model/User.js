@@ -2,6 +2,8 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt-as-promised'
 
+import TodoCategory from './TodoCategory'
+
 const Schema = new mongoose.Schema( {
     name     : {
         type     : String,
@@ -20,11 +22,9 @@ const Schema = new mongoose.Schema( {
         type    : Boolean,
         default : true,
     },
+    categories : [TodoCategory.schema]
 }, {
-    timestamps : {
-        createdAt : 'createdAt',
-        updatedAt : 'updatedAt',
-    },
+    timestamps : true,
     collection : 'user',
 } )
 
