@@ -7,7 +7,7 @@ import {
 
 import { mutationWithClientMutationId } from 'graphql-relay'
 
-import errors from '../errors'
+import errors from '../../errors'
 import { User } from '../model'
 import { generateToken } from '../auth'
 

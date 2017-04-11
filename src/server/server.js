@@ -18,8 +18,7 @@ import connectDatabase from './database'
 import dataLoaders from './loader'
 import { getUser } from './auth'
 import { schema } from './schema'
-import { jwtSecret } from './config'
-import { graphqlPort } from './config'
+import { jwtSecret, graphqlPort } from './config'
 
 const app = new Koa()
 const router = new Router()

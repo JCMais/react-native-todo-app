@@ -2,7 +2,7 @@ import { graphql } from 'graphql'
 
 import { schema } from '../../schema'
 import { User } from '../../model'
-import { connectToDatabase, clearDatabase, getContext } from '../../../test/helper'
+import { connectToDatabase, clearDatabase, getContext } from '../../../../test/helper'
 
 beforeEach( async () => await connectToDatabase() )
 afterEach( async () => await clearDatabase() )

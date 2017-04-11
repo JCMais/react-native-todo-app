@@ -2,7 +2,7 @@
 import DataLoader from 'dataloader'
 import mongoose from 'mongoose'
 
-import type { UserInterface, GraphQLContext } from '../ProjectTypes'
+import type { UserInterface, GraphQLContext } from '../../ProjectTypes'
 import { User as UserModel } from '../model'
 import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
 

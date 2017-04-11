@@ -1,5 +1,5 @@
 // @flow
-import { UserInterface } from './ProjectTypes'
+import { UserInterface } from '../ProjectTypes'
 
 import jwt from 'jsonwebtoken'
 import { User } from './model'

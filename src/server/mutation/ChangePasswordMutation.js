@@ -5,7 +5,7 @@ import {
 
 import { mutationWithClientMutationId } from 'graphql-relay'
 
-import errors from '../errors'
+import errors from '../../errors'
 import UserType from '../type/UserType'
 import UserLoader from '../loader/UserLoader'
 

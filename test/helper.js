@@ -1,7 +1,7 @@
 // @flow
 import mongoose from 'mongoose';
 
-import dataLoaders from '../src/loader'
+import dataLoaders from '../src/server/loader'
 import type { UserInterface } from '../src/ProjectTypes'
 
 process.env.NODE_ENV = 'test';

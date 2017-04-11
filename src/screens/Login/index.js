@@ -1,5 +1,5 @@
 // @flow
-
+import Relay from 'react-relay'
 import React, { Component } from 'react'
 import {
     StyleSheet,
@@ -7,29 +7,36 @@ import {
     View
 } from 'react-native'
 
-export default class Login extends Component {
+import { createRenderer } from '../../util/RelayUtils'
+import ViewerQuery from '../../query/ViewerQuery'
+
+// If https://github.com/flowtype/flow-typed/issues/16 is resolved, we can better declare external types, and add the navigation below.
+type Props = {
+    viewer : {
+        email : string
+    }
+}
+
+class Login extends Component {
 
     static navigationOptions = {
         header: {
             visible: false,
-        },
-        title: 'Login or Register'
+        }
+    }
+
+    constructor( props: Props ) {
+
+        super( props )
+
+        console.log( props )
     }
 
     render() {
+
         return (
             <View style={styles.container}>
-                <Text style={styles.welcome}>
-                    Paragráfo Inicial - Título
-                </Text>
-                <Text style={styles.instructions}>
-                    Subtítulo - :D
-                </Text>
-                <Text style={styles.instructions}>
-                    Texto com algum contéudo,{'\n'}
-                    Balance para opções de desenvolvimento,{'\n'}
-                    como hot reloading.
-                </Text>
+
             </View>
         )
     }
@@ -53,3 +60,16 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     }
 })
+
+// Create a Relay.Renderer container
+export default createRenderer( Login, {
+    queries: { ...ViewerQuery },
+    fragments: {
+        viewer: () => Relay.QL`
+            fragment on User {
+                email,
+            }
+        `,
+    },
+
+});

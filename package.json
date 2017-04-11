@@ -8,9 +8,9 @@
         "url": "https://github.com/JCMais/react-native-todo-app"
     },
     "scripts": {
-        "build": "npm run clear && babel src --ignore *.spec.js --source-maps inline --out-dir dist --copy-files",
+        "build": "npm run clear && babel src/server --ignore *.spec.js --source-maps inline --out-dir dist --copy-files",
         "clear": "rimraf ./dist",
-        "start": "babel-node src/server.js",
+        "start": "babel-node src/server/server.js",
         "start:production": "node dist/server.js",
         "start:app": "node node_modules/react-native/local-cli/cli.js start",
         "repl": "nodemon --config ./repl/nodemon.json ./repl.js --exec babel-node",
@@ -28,6 +28,7 @@
         "dotenv-safe": "^4.0.3",
         "graphql": "^0.9.2",
         "graphql-relay": "^0.5.1",
+        "hoist-non-react-statics": "^1.2.0",
         "isomorphic-fetch": "^2.2.1",
         "jsonwebtoken": "^7.3.0",
         "koa": "^2.2.0",

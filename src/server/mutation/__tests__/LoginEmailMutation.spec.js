@@ -1,10 +1,10 @@
 import { graphql } from 'graphql'
 
-import errors from '../../errors'
+import errors from '../../../errors'
 import { schema } from '../../schema'
 import { User } from '../../model'
 import { generateToken } from '../../auth'
-import { connectToDatabase, clearDatabase, getContext } from '../../../test/helper'
+import { connectToDatabase, clearDatabase, getContext } from '../../../../test/helper'
 
 beforeEach( async () => await connectToDatabase() )
 afterEach( async () => await clearDatabase() )

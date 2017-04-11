@@ -1,10 +1,8 @@
 {
   "retainLines": true,
   "plugins": [
-    [
-      "transform-flow-strip-types",
-      "./plugins/babelRelayPlugin"
-    ]
+    "./plugins/babelRelayPlugin",
+    "transform-flow-strip-types"
   ],
   "presets": [
     "react-native-stage-0"
