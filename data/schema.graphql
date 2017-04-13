@@ -19,6 +19,7 @@ input LoginEmailInput {
 }
 
 type LoginEmailPayload {
+  viewer: User
   token: String
   error: String
   clientMutationId: String

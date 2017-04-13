@@ -3,8 +3,10 @@
 import { GraphQLString, GraphQLNonNull } from 'graphql'
 import { mutationWithClientMutationId } from 'graphql-relay'
 
+import UserType from '../type/UserType'
 import errors from '../../errors'
 import { User } from '../model'
+import UserLoader from '../loader/UserLoader'
 import { generateToken } from '../auth'
 
 export default mutationWithClientMutationId( {
@@ -18,6 +20,10 @@ export default mutationWithClientMutationId( {
         },
     },
     outputFields        : {
+        viewer : {
+            type : UserType,
+            resolve: ( {user} ) => user,
+        },
         token : {
             type    : GraphQLString,
             resolve : ( {token} ) => token,
@@ -36,6 +42,7 @@ export default mutationWithClientMutationId( {
             return {
                 token : null,
                 error : errors.INVALID_EMAIL_PASSWORD,
+                user  : null
             }
         }
 
@@ -46,11 +53,13 @@ export default mutationWithClientMutationId( {
             return {
                 token : null,
                 error : errors.INVALID_EMAIL_PASSWORD,
+                user  : null
             }
         }
 
         return {
             token : generateToken( user ),
+            user  : user,
             error : null,
         }
     },

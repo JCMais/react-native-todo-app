@@ -38,6 +38,10 @@ export default mutationWithClientMutationId( {
 
         let user = await User.findOne( { email : email.toLowerCase() } )
 
+        // not validating the input here
+        //  We are trusting the client, but keep in mind
+        //  this should not happen in a real app.
+
         if ( user ) {
 
             return {

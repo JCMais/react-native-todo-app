@@ -14,6 +14,8 @@ import bodyParser from 'koa-bodyparser'
 import graphqlHttp from 'koa-graphql'
 import graphqlBatchHttpWrapper from 'koa-graphql-batch'
 
+import { print } from 'graphql/language'; // ES6
+
 import connectDatabase from './database'
 import dataLoaders from './loader'
 import { getUser } from './auth'
@@ -31,6 +33,9 @@ const graphqlSettingsPerReq = async ( req ) => {
 
     const { user } = await getUser( req.header.authorization )
 
+    console.log( 'Header: ', req.header.authorization )
+    console.log( 'User: ', user ? user.name : 'Anonymous' )
+
     const generatedDataLoaders = {}
 
     Object.keys( dataLoaders ).forEach( item => { generatedDataLoaders[item] = dataLoaders[item].getLoader() } )
@@ -43,6 +48,14 @@ const graphqlSettingsPerReq = async ( req ) => {
             user,
             req,
             dataLoaders : generatedDataLoaders
+        },
+        extensions( { document, variables, operationName, result } ) {
+
+            console.log( 'Query: ', print( document ) )
+            console.log( 'Variables: ', variables )
+            console.log( 'Result: ', variables )
+
+            return {}
         },
         formatError : ( error ) => {
             console.log( error.message )
@@ -72,6 +85,7 @@ router.all(
     '/graphql',
     graphqlServer
 )
+
 
 app.use( logger() )
 app.use( convert( cors() ) )

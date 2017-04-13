@@ -20,12 +20,14 @@ class RelayStore {
         this._networkLayer  = null;
         this._taskScheduler = null;
 
-        RelayNetworkDebug.init( this._env );
+        // RelayNetworkDebug.init( this._env );
     }
 
     reset( networkLayer ) {
 
         if ( networkLayer !== undefined ) {
+
+
             this._networkLayer = networkLayer;
         }
 
@@ -38,7 +40,7 @@ class RelayStore {
         }
 
         // Comment/Uncomment the line bellow to enable relay debug (dafult commented)
-        RelayNetworkDebug.init( this._env );
+        // RelayNetworkDebug.init( this._env );
     }
 
     // Map existing RelayEnvironment methods
@@ -88,7 +90,8 @@ class RelayStore {
         return this._env.applyUpdate( ...args );
     }
 
-    commitUpdate( ...args ) {
+    commitUpdate = ( ...args ) => {
+
         return this._env.commitUpdate( ...args );
     }
 }
