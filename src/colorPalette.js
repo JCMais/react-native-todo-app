@@ -11,6 +11,7 @@ const palette = {
 export default {
     bg : palette.s0,
     bgDark : ( new color( palette.s0 ) ).darken( 0.5 ).rgb().string(),
+    statusBar : ( new color( palette.s0 ) ).darken( 0.75 ).rgb().string(),
     text : ( new color( palette.s4 ) ).darken( 0.8 ).rgb().string(),
     textInput : ( new color( palette.s4 ) ).darken( 0.6 ).rgb().string(),
     textInputPlaceholder : ( new color( palette.s4 ) ).alpha( 0.4 ),
