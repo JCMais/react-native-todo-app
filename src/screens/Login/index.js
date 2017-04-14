@@ -2,13 +2,13 @@
 import Relay from 'react-relay'
 import React, { Component } from 'react'
 import {
-    StyleSheet,
     Text,
     View,
     TextInput,
     Button,
     Alert,
 } from 'react-native'
+import { NavigationActions } from 'react-navigation'
 
 import { isValidEmail, isValidLength } from '../../util/validator'
 import { createRenderer } from '../../util/RelayUtils'
@@ -32,37 +32,52 @@ type Props = {
 class Login extends Component {
 
     static navigationOptions = {
-        header: {
-            visible: false,
-        }
+        title: 'Login',
     }
 
     constructor( props: Props ) {
 
         super( props )
 
-        const { viewer } = props
-
-        // user already logged in
-        if ( viewer && viewer.email ) {
-
-            // @TODO redirect to category listing
-            console.log( 'You are already logged in.' )
-        }
-
-
-        const { params } = props.navigation.state
+        const {params} = props.navigation.state
 
         this.state = {
-            email : params.email || 'my-email@domain.com',
-            password: params.password || 'my secure pass',
-            isValidEmail: isValidEmail( params.email || 'my-email@domain.com' ),
-            isValidPassword : isValidLength( params.password || 'my secure pass', { min : 3 } )
+            email           : params.email || 'my-email@domain.com',
+            password        : params.password || 'my secure pass',
+            isValidEmail    : isValidEmail( params.email || 'my-email@domain.com' ),
+            isValidPassword : isValidLength( params.password || 'my secure pass', {min : 3} )
         }
     }
 
-    componentDidUpdate() {
-        //console.log( 'componentDidUpdate: ', arguments )
+    navigateToTodoList = () => {
+
+        // We are resetting the navigation here too, even while we are at the Login screen already,
+        //   we don't want the params to be present at the stack.
+
+        const resetAction = NavigationActions.reset({
+            index: 1,
+            actions: [
+                NavigationActions.navigate({ routeName: 'Login', params : {
+                    email    : '',
+                    password : '',
+                    redirectedOnLogin : true,
+                }}),
+                NavigationActions.navigate({ routeName: 'TodoList' })
+            ]
+        })
+
+        this.props.navigation.dispatch( resetAction )
+    }
+
+    componentWillMount() {
+
+        const { viewer, navigation } = this.props
+
+        // user already logged in
+        if ( viewer && viewer.email && !( navigation.state.params.redirectedOnLogin ) ) {
+
+            this.navigateToTodoList()
+        }
     }
 
     onEmailInputChange = ( email ) => {
@@ -108,8 +123,17 @@ class Login extends Component {
                         // if there are no errors we have token
 
                         login( response.LoginEmail.token ).then( () => {
-                            console.log( 'We are logged!' )
-                        } )
+
+                            this.navigateToTodoList()
+
+                        } ).catch( err => {
+
+                            Alert.alert(
+                                'Oops',
+                                'Something went wrong: ' + err.toString()
+                            )
+
+                        })
                     }
                 },
             }
@@ -130,9 +154,10 @@ class Login extends Component {
         const hasError = !!( this.state.email || this.state.password )
                 && (!this.state.isValidEmail || !this.state.isValidPassword )
 
+        if ( this.props.navigation.state.params.redirectedOnLogin ) return <View/>
+
         return (
             <View style={styles.container}>
-                <Text style={styles.title}>Login</Text>
                 <TextInput value={this.state.email} style={styles.fieldInput} placeholder="your-email@domain.tld"
                            keyboardType="email-address" selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1}
                            autoCorrect={false} autoFocus={true} onChangeText={this.onEmailInputChange} />

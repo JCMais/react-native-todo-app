@@ -37,6 +37,21 @@ interface Node {
   id: ID!
 }
 
+# Information about pagination in a connection.
+type PageInfo {
+  # When paginating forwards, are there more items?
+  hasNextPage: Boolean!
+
+  # When paginating backwards, are there more items?
+  hasPreviousPage: Boolean!
+
+  # When paginating backwards, the cursor to continue.
+  startCursor: String
+
+  # When paginating forwards, the cursor to continue.
+  endCursor: String
+}
+
 # The root of all... queries
 type Query {
   # Fetches an object given its ID
@@ -60,6 +75,36 @@ type RegisterEmailPayload {
   clientMutationId: String
 }
 
+# Todo data
+type Todo implements Node {
+  # The ID of an object
+  id: ID!
+  _id: String
+  text: String
+  completedAt: String
+  color: String
+  order: Int
+}
+
+# A connection to a list of items.
+type TodoConnection {
+  # Information to aid in pagination.
+  pageInfo: PageInfo!
+
+  # A list of edges.
+  edges: [TodoEdge]
+  count: Int
+}
+
+# An edge in a connection.
+type TodoEdge {
+  # The item at the end of the edge
+  node: Todo
+
+  # A cursor for use in pagination
+  cursor: String!
+}
+
 # User data
 type User implements Node {
   # The ID of an object
@@ -68,4 +113,5 @@ type User implements Node {
   name: String
   email: String
   active: Boolean
+  todos(after: String, first: Int, before: String, last: Int, search: String): TodoConnection
 }

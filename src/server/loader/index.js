@@ -1,5 +1,2 @@
-import UserLoader from './UserLoader'
-
-export default {
-    UserLoader
-}
+export TodoLoader from './TodoLoader'
+export UserLoader from './UserLoader'

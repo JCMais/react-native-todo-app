@@ -33,9 +33,7 @@ type Props = {
 class Register extends Component {
 
     static navigationOptions = {
-        header: {
-            visible: false,
-        }
+        title : 'Register',
     }
 
     constructor( props: Props ) {
@@ -52,12 +50,6 @@ class Register extends Component {
             isValidPassword : isValidLength( params.password, { min : 3 } ),
             isValidName     : isValidLength( params.name, { min : 1 } )
         }
-
-        console.log( this.state )
-    }
-
-    componentDidUpdate() {
-        //console.log( 'componentDidUpdate: ', arguments )
     }
 
     onEmailInputChange = ( email ) => {
@@ -94,8 +86,9 @@ class Register extends Component {
             index: 0,
             actions: [
                 NavigationActions.navigate({ routeName: 'Login', params : {
-                    'email'    : this.state.email,
-                    'password' : this.state.password
+                    email      : this.state.email,
+                    password   : this.state.password,
+                    redirectedOnLogin : false
                 }})
             ]
         })
@@ -138,7 +131,29 @@ class Register extends Component {
                                 {
                                     text : 'OK',
                                     onPress : () => login( response.RegisterEmail.token ).then( () => {
-                                        console.log( 'We are logged!' )
+
+                                        // reset the navigation so we have Login (empty) -> TodoList
+
+                                        const resetAction = NavigationActions.reset({
+                                            index: 1,
+                                            actions: [
+                                                NavigationActions.navigate({ routeName: 'Login', params : {
+                                                    email      : '',
+                                                    password   : '',
+                                                    redirectedOnLogin : true
+                                                }}),
+                                                NavigationActions.navigate({ routeName: 'TodoList' })
+                                            ]
+                                        })
+
+                                        this.props.navigation.dispatch( resetAction )
+
+                                    }).catch( err => {
+
+                                        Alert.alert(
+                                            'Oops',
+                                            'Something went wrong: ' + err.toString()
+                                        )
                                     })
                                 },
                             ],
@@ -158,7 +173,6 @@ class Register extends Component {
 
         return (
             <View style={styles.container}>
-                <Text style={styles.title}>Register</Text>
                 <TextInput value={this.state.name} style={styles.fieldInput} placeholder="Jon Doe" selectionColor={colorPalette.s1}
                            placeholderTextColor={colorPalette.textInputPlaceholder} underlineColorAndroid={colorPalette.s1}
                            autoCorrect={false} autoFocus={true} onChangeText={this.onNameInputChange} />
@@ -171,7 +185,7 @@ class Register extends Component {
                 <View style={styles.buttonsWrapper}>
                     <Button color={colorPalette.s4} title="Register" onPress={this.doRegister} disabled={hasError} />
                     <Text> Or </Text>
-                    <Button color={colorPalette.s4} title="Get Back to Login" onPress={this.doLogin} disabled={hasError} />
+                    <Button color={colorPalette.s4} title="Get Back to Login" onPress={this.doLogin} />
                 </View>
                 <FadeInOutView isVisible={hasError} style={styles.errorMessageWrapper}>
                     <Text style={styles.errorMessage}>Please input a valid name, email and password.</Text>

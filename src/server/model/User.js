@@ -2,7 +2,7 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt-as-promised'
 
-import TodoCategory from './TodoCategory'
+import TodoItem from './TodoItem'
 
 const Schema = new mongoose.Schema( {
     name     : {
@@ -22,7 +22,7 @@ const Schema = new mongoose.Schema( {
         type    : Boolean,
         default : true,
     },
-    categories : [TodoCategory.schema]
+    todos : [{ type: mongoose.Schema.Types.ObjectId, ref: 'TodoItem' }]
 }, {
     timestamps : true,
     collection : 'user',

@@ -1,4 +1,5 @@
 // @flow
+import { GraphQLContext } from '../../ProjectTypes'
 
 export default class ConnectionFromMongoCursor {
 
@@ -45,7 +46,7 @@ export default class ConnectionFromMongoCursor {
      * object for use in GraphQL. It uses array offsets as pagination, so pagiantion
      * will work only if the data set is satic.
      */
-    static async connectionFromMongoCursor( viewer, inMongoCursor, args = {}, loader ) {
+    static async connectionFromMongoCursor( ctx: GraphQLContext, inMongoCursor, args = {}, loader ) {
 
         const mongodbCursor   = inMongoCursor
         const {after, before} = args
@@ -92,8 +93,8 @@ export default class ConnectionFromMongoCursor {
 
         const edges = slice.map( ( value, index ) => ({
             cursor : ConnectionFromMongoCursor.offsetToCursor( startOffset + index ),
-            node   : loader( viewer, value._id ),
-        }))
+            node   : loader( ctx, value.id ),
+        }) )
 
         const firstEdge  = edges[0]
         const lastEdge   = edges[edges.length - 1]

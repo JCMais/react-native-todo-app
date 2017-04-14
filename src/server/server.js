@@ -17,7 +17,7 @@ import graphqlBatchHttpWrapper from 'koa-graphql-batch'
 import { print } from 'graphql/language'; // ES6
 
 import connectDatabase from './database'
-import dataLoaders from './loader'
+import * as dataLoaders from './loader'
 import { getUser } from './auth'
 import { schema } from './schema'
 import { jwtSecret, graphqlPort } from './config'
