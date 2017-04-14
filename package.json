@@ -45,6 +45,7 @@
         "mongoose": "^4.9.3",
         "react": "16.0.0-alpha.6",
         "react-native": "0.43.2",
+        "react-native-vector-icons": "^4.0.1",
         "react-navigation": "https://github.com/react-community/react-navigation.git",
         "react-relay": "~0.10.0",
         "react-relay-network-layer": "^2.0.1",
