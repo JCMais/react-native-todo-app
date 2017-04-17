@@ -5,7 +5,7 @@ This project is (will be) the result of a code challenge made for a job
 
 ### Server
 
-The included server is based on [@entria/graphql-dataloader-boilerplate](https://github.com/),
+The included server is based on [@entria/graphql-dataloader-boilerplate](https://github.com/entria/graphql-dataloader-boilerplate),
  created using the awesome tool  [create-graphql](https://github.com/lucasbento/create-graphql).
 
 
