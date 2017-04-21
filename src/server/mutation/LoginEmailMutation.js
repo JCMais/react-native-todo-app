@@ -6,7 +6,6 @@ import { mutationWithClientMutationId } from 'graphql-relay'
 import UserType from '../type/UserType'
 import errors from '../../errors'
 import { User } from '../model'
-import UserLoader from '../loader/UserLoader'
 import { generateToken } from '../auth'
 
 export default mutationWithClientMutationId( {
