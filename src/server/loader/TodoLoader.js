@@ -2,14 +2,14 @@
 import DataLoader from 'dataloader'
 import mongoose from 'mongoose'
 
-import type { TodoInterface, UserInterface, GraphQLContext } from '../../ProjectTypes'
+import type { TodoInterface, UserInterface, GraphQLContext, GraphQLViewerTodosArgs } from '../../ProjectTypes'
 import { TodoItem as TodoModel } from '../model'
-import mongooseLoader from './mongooseHelper'
+import mongooseLoader from './helper/mongoose'
 import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
 
 export default class Todo {
 
-    _author : mongoose.Types.ObjectId
+    _author: mongoose.Types.ObjectId
     _id: mongoose.Types.ObjectId
     id: string
     text: string
@@ -47,14 +47,22 @@ export default class Todo {
         return Todo.viewerCanSee( ctx.user, data ) ? new Todo( data ) : null
     }
 
-    static async loadTodos( ctx: GraphQLContext, args ) {
+    static async loadTodos( ctx: GraphQLContext, args: GraphQLViewerTodosArgs ) {
 
-        const where = args.search ? { text: { $regex: new RegExp( `^${args.search}`, 'ig' ) } } : {}
+        const where = {}
 
-        where['_author'] = ctx.user.id
+        if ( args.search ) {
+            where.text = {$regex : new RegExp( `^${args.search}`, 'ig' )}
+        }
+
+        if ( args.hideCompleted ) {
+            where.complatedAt = {$eq : null}
+        }
+
+        where._author = ctx.user.id
 
         const todos = TodoModel.find( where, {}, {
-            sort:{
+            _id : {
                 order : 1
             }
         } )

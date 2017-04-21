@@ -18,5 +18,12 @@ export default {
 
     errorBg : '#CC2326',
 
+    todo0 : palette.s0,
+    todo1 : '#B0C95B',
+    todo2 : '#65C786',
+    todo3 : '#9665C7',
+    todo4 : '#C765B7',
+    todo5 : '#C7A365',
+
     ...palette
 }

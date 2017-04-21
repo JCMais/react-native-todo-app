@@ -28,3 +28,8 @@ export type GraphQLContext = {
     req  : Object,
     dataloaders : DataLoaders,
 }
+
+export type GraphQLViewerTodosArgs = {
+    search? : ?string,
+    hideCompleted? : boolean,
+}

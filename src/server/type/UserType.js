@@ -42,6 +42,9 @@ export default new GraphQLObjectType( {
                 search: {
                     type: GraphQLString,
                 },
+                hideCompleted: {
+                    type: GraphQLBoolean,
+                },
             },
             resolve : async ( obj, args, ctx, info ) => await TodoLoader.loadTodos( ctx, args ),
         }

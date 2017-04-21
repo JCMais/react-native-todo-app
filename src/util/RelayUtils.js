@@ -1,6 +1,7 @@
 // @flow
 
-// from https://github.com/sibelius/ReactNavigationRelay/blob/master/src/RelayUtils.js
+// Copied from from https://github.com/sibelius/ReactNavigationRelay/blob/master/src/RelayUtils.js
+// which in turn is based on https://gist.github.com/janicduplessis/f513032eb37cdde5d050d9ce8cf0b92a
 
 import type { Element as ReactElement } from 'react'
 

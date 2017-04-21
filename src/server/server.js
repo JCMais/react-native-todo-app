@@ -100,7 +100,6 @@ router.all(
     graphqlServer,
 )
 
-
 app.use( logger() )
 app.use( convert( cors() ) )
 app.use( router.routes() ).use( router.allowedMethods() )

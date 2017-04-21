@@ -4,8 +4,7 @@ import mongoose from 'mongoose'
 
 import type { UserInterface, GraphQLContext } from '../../ProjectTypes'
 import { User as UserModel } from '../model'
-import mongooseLoader from './mongooseHelper'
-import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
+import mongooseLoader from './helper/mongoose'
 
 export default class User {
 

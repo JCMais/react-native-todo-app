@@ -9,10 +9,20 @@ export default StyleSheet.create({
         alignItems: 'center',
         backgroundColor: colorPalette.bg
     },
+    todoList : {
+        alignSelf: "stretch",
+    },
+    todoRow : {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "flex-start",
+        margin: 10
+    },
     text : {
         color: colorPalette.text
     },
     separator: {
+        alignSelf: "stretch",
         height: 1,
         backgroundColor: '#cccccc',
     },
