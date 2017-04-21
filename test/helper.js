@@ -1,7 +1,7 @@
 // @flow
 import mongoose from 'mongoose';
 
-import dataLoaders from '../src/server/loader'
+import * as loaders from '../src/server/loader'
 import type { UserInterface } from '../src/ProjectTypes'
 
 process.env.NODE_ENV = 'test';
@@ -59,13 +59,14 @@ export async function clearDatabase() {
 
 export function getContext( user: ?UserInterface ) {
 
-    const generatedDataLoaders = {}
-
-    Object.keys( dataLoaders ).forEach( item => { generatedDataLoaders[item] = dataLoaders[item].getLoader() } )
+    const dataloaders = Object.keys( loaders ).reduce( ( dataloaders, loaderKey ) => ({
+        ...dataloaders,
+        [loaderKey] : loaders[loaderKey].getLoader(),
+    }), {} )
 
     return {
         user,
         req : {},
-        dataLoaders : generatedDataLoaders
+        dataloaders,
     }
 }

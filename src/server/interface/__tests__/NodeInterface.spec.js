@@ -6,7 +6,7 @@ import { User } from '../../model'
 import { connectToDatabase, clearDatabase, getContext } from '../../../../test/helper'
 
 beforeEach( async () => await connectToDatabase() )
-///afterEach( async () => await clearDatabase() )
+afterEach( async () => await clearDatabase() )
 
 it( 'should load logged User', async () => {
 

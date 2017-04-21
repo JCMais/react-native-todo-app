@@ -1,26 +1,24 @@
 // @flow
 
-// from https://github.com/sibelius/ReactNavigationRelay/blob/master/src/RelayStore.js
+// Copied from https://github.com/sibelius/ReactNavigationRelay/blob/master/src/RelayStore.js
+import { Environment } from 'react-relay'
 
-import { Environment } from 'react-relay';
-
-import RelayNetworkDebug from 'react-relay/lib/RelayNetworkDebug';
+import RelayNetworkDebug from 'react-relay/lib/RelayNetworkDebug'
 
 class RelayStore {
 
-    _env : Environment
+    env : Environment
 
-    _networkLayer : Object
+    networkLayer : Object
 
-    _taskScheduler : Object
+    taskScheduler : Object
 
     constructor() {
 
-        this._env           = new Environment();
-        this._networkLayer  = null;
-        this._taskScheduler = null;
+        this.networkLayer = null
+        this.taskScheduler = null
 
-        // RelayNetworkDebug.init( this._env );
+        this.reset()
     }
 
     reset( networkLayer ) {
@@ -28,74 +26,90 @@ class RelayStore {
         if ( networkLayer !== undefined ) {
 
 
-            this._networkLayer = networkLayer;
+            this.networkLayer = networkLayer
         }
 
-        this._env = new Environment();
-        if ( this._networkLayer !== null ) {
-            this._env.injectNetworkLayer( this._networkLayer );
+        this.env = new Environment()
+
+        if ( this.networkLayer !== null ) {
+
+            this.env.injectNetworkLayer( this.networkLayer )
         }
-        if ( this._taskScheduler !== null ) {
-            this._env.injectTaskScheduler( this._taskScheduler );
+
+        if ( this.taskScheduler !== null ) {
+
+            this.env.injectTaskScheduler( this.taskScheduler )
         }
 
         // Comment/Uncomment the line bellow to enable relay debug (dafult commented)
-        // RelayNetworkDebug.init( this._env );
+        // RelayNetworkDebug.init( this.env );
     }
 
     // Map existing RelayEnvironment methods
+
     getStoreData() {
-        return this._env.getStoreData();
+
+        return this.env.getStoreData()
     }
 
     injectNetworkLayer( networkLayer ) {
-        this._networkLayer = networkLayer;
-        this._env.injectNetworkLayer( networkLayer );
+
+        this.networkLayer = networkLayer
+        this.env.injectNetworkLayer( networkLayer )
     }
 
     injectTaskScheduler( taskScheduler ) {
-        this._taskScheduler = taskScheduler;
-        this._env.injectTaskScheduler( taskScheduler );
+
+        this.taskScheduler = taskScheduler
+        this.env.injectTaskScheduler( taskScheduler )
     }
 
     primeCache( ...args ) {
-        return this._env.primeCache( ...args );
+
+        return this.env.primeCache( ...args )
     }
 
     forceFetch( ...args ) {
-        return this._env.forceFetch( ...args );
+
+        return this.env.forceFetch( ...args )
     }
 
     read( ...args ) {
-        return this._env.read( ...args );
+
+        return this.env.read( ...args )
     }
 
     readAll( ...args ) {
-        return this._env.readAll( ...args );
+
+        return this.env.readAll( ...args )
     }
 
     readQuery( ...args ) {
-        return this._env.readQuery( ...args );
+
+        return this.env.readQuery( ...args )
     }
 
     observe( ...args ) {
-        return this._env.observe( ...args );
+
+        return this.env.observe( ...args )
     }
 
     getFragmentResolver( ...args ) {
-        return this._env.getFragmentResolver( ...args );
+
+        return this.env.getFragmentResolver( ...args )
     }
 
-    applyUpdate( ...args ) {
-        return this._env.applyUpdate( ...args );
+    applyUpdate = ( ...args ) => {
+
+        return this.env.applyUpdate( ...args )
     }
 
     commitUpdate = ( ...args ) => {
 
-        return this._env.commitUpdate( ...args );
+        return this.env.commitUpdate( ...args )
     }
 }
 
-const relayStore = new RelayStore();
+const relayStore = new RelayStore()
 
-export default relayStore;
+export default relayStore

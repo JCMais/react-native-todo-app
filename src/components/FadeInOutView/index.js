@@ -1,3 +1,5 @@
+// @flow
+
 import React, { Component } from 'react'
 import { Animated, StyleSheet } from 'react-native'
 

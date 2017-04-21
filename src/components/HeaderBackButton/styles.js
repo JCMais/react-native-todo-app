@@ -1,3 +1,5 @@
+// @flow
+
 import {
     I18nManager,
     Platform,

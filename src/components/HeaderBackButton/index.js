@@ -2,7 +2,6 @@
 
 import React, { PropTypes } from 'react'
 import {
-    Image,
     Text,
     View,
     Platform,
@@ -34,6 +33,8 @@ type State = {
 
 export default class HeaderBackButton extends React.PureComponent<DefaultProps, Props, State> {
 
+    props : Props
+
     static propTypes = {
         onPress           : PropTypes.func.isRequired,
         pressColorAndroid : PropTypes.string,
@@ -43,7 +44,7 @@ export default class HeaderBackButton extends React.PureComponent<DefaultProps, 
         width             : PropTypes.number,
     }
 
-    static defaultProps = {
+    static defaultProps: DefaultProps = {
         pressColorAndroid : 'rgba(0, 0, 0, .32)',
         tintColor         : Platform.select( {
             ios : '#037aff',
@@ -51,7 +52,7 @@ export default class HeaderBackButton extends React.PureComponent<DefaultProps, 
         truncatedTitle    : 'Back',
     }
 
-    state = {}
+    state: State = {}
 
     _onTextLayout = ( e ) => {
 
@@ -79,7 +80,7 @@ export default class HeaderBackButton extends React.PureComponent<DefaultProps, 
                 borderless
             >
                 <View style={styles.container}>
-                    <FontAwesome name="chevron-left" style={{margin: 20, color: '#FFF'}}/>
+                    <FontAwesome name="chevron-left" style={{margin : 20, color : '#FFF'}}/>
                     {Platform.OS === 'ios' && title && (
                         <Text
                             onLayout={this._onTextLayout}

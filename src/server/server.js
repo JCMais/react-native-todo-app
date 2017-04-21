@@ -3,6 +3,8 @@ import 'babel-polyfill'
 import 'isomorphic-fetch'
 import 'source-map-support/register'
 
+import util from 'util'
+
 import Koa from 'koa'
 import Router from 'koa-router'
 
@@ -14,10 +16,10 @@ import bodyParser from 'koa-bodyparser'
 import graphqlHttp from 'koa-graphql'
 import graphqlBatchHttpWrapper from 'koa-graphql-batch'
 
-import { print } from 'graphql/language'; // ES6
+import { print } from 'graphql/language'
 
 import connectDatabase from './database'
-import * as dataLoaders from './loader'
+import * as loaders from './loader'
 import { getUser } from './auth'
 import { schema } from './schema'
 import { jwtSecret, graphqlPort } from './config'
@@ -36,9 +38,10 @@ const graphqlSettingsPerReq = async ( req ) => {
     console.log( 'Header: ', req.header.authorization )
     console.log( 'User: ', user ? user.name : 'Anonymous' )
 
-    const generatedDataLoaders = {}
-
-    Object.keys( dataLoaders ).forEach( item => { generatedDataLoaders[item] = dataLoaders[item].getLoader() } )
+    const dataloaders = Object.keys( loaders ).reduce( ( dataloaders, loaderKey ) => ({
+        ...dataloaders,
+        [loaderKey] : loaders[loaderKey].getLoader(),
+    }), {} )
 
     return {
 
@@ -47,15 +50,16 @@ const graphqlSettingsPerReq = async ( req ) => {
         context     : {
             user,
             req,
-            dataLoaders : generatedDataLoaders
+            dataloaders,
         },
         extensions( { document, variables, operationName, result } ) {
 
-            console.log( 'Query: ', print( document ) )
-            console.log( 'Variables: ', variables )
-            console.log( 'Result: ', variables )
+            console.log( '-'.repeat( 20 ) )
+            console.log( 'Query:\n', print( document ) )
+            console.log( '-'.repeat( 20 ) )
+            console.log( 'Variables:\n', variables )
 
-            return {}
+            return null
         },
         formatError : ( error ) => {
             console.log( error.message )
@@ -73,17 +77,27 @@ const graphqlSettingsPerReq = async ( req ) => {
 
 const graphqlServer = convert( graphqlHttp( graphqlSettingsPerReq ) )
 
+const debugPrint = async ( ctx, next ) => {
+
+    await next()
+
+    console.log( '-'.repeat( 20 ) )
+    console.log( 'Response:\n', util.inspect( JSON.parse( ctx.response.body ), true, 10 ) )
+}
+
 // graphql batch query route
 router.all(
     '/graphql/batch',
     bodyParser(),
-    graphqlBatchHttpWrapper( graphqlServer )
+    debugPrint,
+    graphqlBatchHttpWrapper( graphqlServer ),
 )
 
 // graphql standard route
 router.all(
     '/graphql',
-    graphqlServer
+    debugPrint,
+    graphqlServer,
 )
 
 

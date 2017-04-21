@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 
 import type { UserInterface, GraphQLContext } from '../../ProjectTypes'
 import { User as UserModel } from '../model'
+import mongooseLoader from './mongooseHelper'
 import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
 
 export default class User {
@@ -24,13 +25,7 @@ export default class User {
         this.active = data.active
     }
 
-    static getLoader = () => new DataLoader( ids => {
-
-        return Promise.all( ids.map( id => {
-
-            return UserModel.findOne( {_id : id} )
-        } ) )
-    })
+    static getLoader = () => new DataLoader( async ids => mongooseLoader( UserModel, ids ) )
 
     static viewerCanSee( viewer : UserInterface, data : UserInterface ) {
 
@@ -41,7 +36,7 @@ export default class User {
 
         if ( !id ) return null
 
-        const data = await ctx.dataLoaders.UserLoader.load( id )
+        const data = await ctx.dataloaders.UserLoader.load( id )
 
         if ( !data ) return null
 

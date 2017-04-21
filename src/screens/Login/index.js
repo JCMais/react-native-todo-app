@@ -22,7 +22,9 @@ import errors from '../../errors'
 import LoginWithEmailMutation from './mutation/LoginWithEmailMutation'
 import styles from './styles'
 
-// If https://github.com/flowtype/flow-typed/issues/16 is resolved, we can better declare external types, and add the navigation below.
+// If https://github.com/flowtype/flow-typed/issues/16 is resolved,
+//    we can better declare external types, and add the navigation below.
+// As of right now, it would be needed to copy the flow definitions again, here.
 type Props = {
     viewer : {
         email : string
@@ -120,7 +122,7 @@ class Login extends Component {
 
                     } else {
 
-                        // if there are no errors we have token
+                        // if there are no errors, then we have token
 
                         login( response.LoginEmail.token ).then( () => {
 

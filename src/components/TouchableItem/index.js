@@ -1,6 +1,7 @@
 // @flow
 
-// from https://github.com/react-community/react-navigation/blob/master/src/views/TouchableItem.js
+// Copied from https://github.com/react-community/react-navigation/blob/master/src/views/TouchableItem.js
+//  for better control over the header buttons.
 
 /**
  * TouchableItem renders a touchable that looks native on both iOS and Android.
@@ -28,6 +29,7 @@ type Props = {
     pressColor?: ?string,
     activeOpacity?: number,
     children?: React.Element<*>,
+    style?: any
 }
 
 type DefaultProps = {
@@ -35,6 +37,8 @@ type DefaultProps = {
 }
 
 export default class TouchableItem extends Component {
+
+    props : Props
 
     static propTypes = {
         onPress       : PropTypes.func,
@@ -46,7 +50,7 @@ export default class TouchableItem extends Component {
         style         : View.propTypes.style,
     }
 
-    static defaultProps = {
+    static defaultProps : DefaultProps = {
         pressColor : 'rgba(0, 0, 0, .32)',
     }
 

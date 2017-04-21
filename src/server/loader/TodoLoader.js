@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 
 import type { TodoInterface, UserInterface, GraphQLContext } from '../../ProjectTypes'
 import { TodoItem as TodoModel } from '../model'
+import mongooseLoader from './mongooseHelper'
 import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
 
 export default class Todo {
@@ -28,13 +29,7 @@ export default class Todo {
         data.order       = data.order
     }
 
-    static getLoader = () => new DataLoader( ids => {
-
-        return Promise.all( ids.map( id => {
-
-            return TodoModel.findOne( {_id : id} )
-        } ) )
-    } )
+    static getLoader = () => new DataLoader( async ids => mongooseLoader( TodoModel, ids ) )
 
     static viewerCanSee( viewer: UserInterface, data: TodoInterface ) {
 
@@ -45,7 +40,7 @@ export default class Todo {
 
         if ( !id ) return null
 
-        const data = await ctx.dataLoaders.TodoLoader.load( id )
+        const data = await ctx.dataloaders.TodoLoader.load( id )
 
         if ( !data ) return null
 

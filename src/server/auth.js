@@ -27,5 +27,5 @@ export async function getUser( token: string ) {
 }
 
 export function generateToken( user: UserInterface ) {
-    return `JWT ${jwt.sign( { id : user._id }, jwtSecret )}`
+    return `JWT ${jwt.sign( { id : user.id }, jwtSecret )}`
 }
