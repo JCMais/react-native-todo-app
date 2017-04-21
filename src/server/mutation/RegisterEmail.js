@@ -58,24 +58,6 @@ export default mutationWithClientMutationId( {
 
         await user.save()
 
-        // @TODO Remove the code below
-        // Create some random TodoItems for testing purposes only.
-
-        await TodoItem.create([{
-            _author : user,
-            text    : 'Call my cousing to go bowling'
-        }, {
-            _author : user,
-            text    : 'Finish Skyrim'
-        }, {
-            _author : user,
-            text    : 'Finish this app'
-        }, {
-            _author : user,
-            text    : 'Get a job',
-            order   : -1
-        }])
-
         return {
             token : generateToken( user ),
             error : null,
