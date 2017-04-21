@@ -5,8 +5,9 @@ import {
     fromGlobalId,
 } from 'graphql-relay'
 
-import UserLoader from '../loader/UserLoader'
+import { UserLoader, TodoLoader } from '../loader'
 import UserType from '../type/UserType'
+import TodoType from '../type/TodoType'
 
 const { nodeInterface, nodeField } = nodeDefinitions(
 
@@ -19,6 +20,11 @@ const { nodeInterface, nodeField } = nodeDefinitions(
 
             return await UserLoader.load( ctx, id )
         }
+
+        if ( type === 'Todo' ) {
+
+            return await TodoLoader.load( ctx, id )
+        }
     },
     // A method that maps from an object to a type
     ( obj ) => {
@@ -26,6 +32,11 @@ const { nodeInterface, nodeField } = nodeDefinitions(
         if ( obj instanceof UserLoader ) {
 
             return UserType
+        }
+
+        if ( obj instanceof TodoLoader ) {
+
+            return TodoType
         }
     },
 )
