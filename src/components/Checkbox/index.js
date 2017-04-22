@@ -11,11 +11,15 @@ import styles from './styles'
 
 type Props = {
     checked? : boolean,
+    checkColor?: string,
+    pressColor?: string,
     onStateChange?: () => void,
 }
 
 type DefaultProps = {
     checked : boolean,
+    checkColor: string,
+    pressColor: string,
 }
 
 type State = {
@@ -26,12 +30,18 @@ export default class Checkbox extends Component {
 
     static propTypes = {
         checked : PropTypes.bool,
+        checkColor: PropTypes.string,
+        pressColor: PropTypes.string,
         onStateChange : PropTypes.func,
     }
 
     static defaultProps: DefaultProps = {
         checked : false,
+        checkColor: colorPalette.s4,
+        pressColor: colorPalette.s4,
     }
+
+    props : Props
 
     state : State = {
         isChecked : false
@@ -69,16 +79,16 @@ export default class Checkbox extends Component {
     render() {
 
         return (
-            <TouchableItem
+            <TouchableItem hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
                 delayPressIn={0}
                 onPress={this.onPress}
-                pressColor={colorPalette.s4}
-                style={[this.props.style, styles.container]}
+                pressColor={this.props.pressColor}
+                style={[styles.container, this.props.style]}
                 borderless={false}
             >
-                <View width={18} height={18}>
+                <View width={20} height={20}>
                     { this.state.isChecked
-                        && <Icon name="check" size={18} color={colorPalette.s4} />
+                        && <Icon name="check" size={20} color={this.props.checkColor} />
                     }
                 </View>
             </TouchableItem>
