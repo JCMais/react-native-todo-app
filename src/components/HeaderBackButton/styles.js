@@ -18,19 +18,13 @@ export default StyleSheet.create( {
     },
     icon          : Platform.OS === 'ios'
         ? {
-            height         : 20,
-            width          : 12,
             marginLeft     : 10,
             marginRight    : 22,
-            marginVertical : 12,
-            resizeMode     : 'contain',
+            marginVertical : 16,
             transform      : [{scaleX : I18nManager.isRTL ? -1 : 1}],
         }
         : {
-            height     : 24,
-            width      : 24,
-            margin     : 16,
-            resizeMode : 'contain',
+            margin     : 18,
             transform  : [{scaleX : I18nManager.isRTL ? -1 : 1}],
         },
     iconWithTitle : Platform.OS === 'ios'

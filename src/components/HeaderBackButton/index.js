@@ -7,7 +7,7 @@ import {
     Platform,
 } from 'react-native'
 
-import FontAwesome from 'react-native-vector-icons/FontAwesome'
+import Icon from 'react-native-vector-icons/FontAwesome'
 
 import TouchableItem from '../TouchableItem'
 import styles from './styles'
@@ -46,9 +46,7 @@ export default class HeaderBackButton extends React.PureComponent<DefaultProps, 
 
     static defaultProps: DefaultProps = {
         pressColorAndroid : 'rgba(0, 0, 0, .32)',
-        tintColor         : Platform.select( {
-            ios : '#037aff',
-        } ),
+        tintColor         : '#FFF',
         truncatedTitle    : 'Back',
     }
 
@@ -80,7 +78,7 @@ export default class HeaderBackButton extends React.PureComponent<DefaultProps, 
                 borderless
             >
                 <View style={styles.container}>
-                    <FontAwesome name="chevron-left" style={{margin : 20, color : '#FFF'}}/>
+                    <Icon name="chevron-left" color={tintColor} size={width} style={this.title ? styles.iconWithTitle : styles.icon}/>
                     {Platform.OS === 'ios' && title && (
                         <Text
                             onLayout={this._onTextLayout}
