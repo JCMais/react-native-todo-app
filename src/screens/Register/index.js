@@ -98,6 +98,16 @@ class Register extends Component {
 
     doRegister = () => {
 
+        // we are not considering empty fields to set the hasError flag
+        if ( this.state.hasError || ( !this.state.name || !this.state.email || !this.state.password ) ) {
+
+            Alert.alert(
+                'Oops',
+                'All fields are required!'
+            )
+            return
+        }
+
         this.props.relay.commitUpdate(
             new RegisterEmailMutation({
                 name     : this.state.name,
@@ -142,7 +152,7 @@ class Register extends Component {
                                                     password   : '',
                                                     redirectedOnLogin : true
                                                 }}),
-                                                NavigationActions.navigate({ routeName: 'TodoList' })
+                                                NavigationActions.navigate({ routeName: 'TodoList', params: {} })
                                             ]
                                         })
 
@@ -173,15 +183,18 @@ class Register extends Component {
 
         return (
             <View style={styles.container}>
-                <TextInput value={this.state.name} style={styles.fieldInput} placeholder="Jon Doe" selectionColor={colorPalette.s1}
-                           placeholderTextColor={colorPalette.textInputPlaceholder} underlineColorAndroid={colorPalette.s1}
-                           autoCorrect={false} autoFocus={true} onChangeText={this.onNameInputChange} />
-                <TextInput value={this.state.email} style={styles.fieldInput} placeholder="your-email@domain.tld"
+                <TextInput ref="inputName" value={this.state.name} style={styles.fieldInput} placeholder="Jon Doe"
+                           selectionColor={colorPalette.s1} placeholderTextColor={colorPalette.textInputPlaceholder}
+                           underlineColorAndroid={colorPalette.s1} autoCorrect={false} autoFocus={true} returnKeyType="next"
+                           onChangeText={this.onNameInputChange} onSubmitEditing={ evt => this.refs.inputEmail.focus() } />
+                <TextInput ref="inputEmail" value={this.state.email} style={styles.fieldInput} placeholder="your-email@domain.tld"
                            keyboardType="email-address" selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1}
-                           autoCorrect={false} onChangeText={this.onEmailInputChange} />
-                <TextInput value={this.state.password} style={styles.fieldInput} placeholder="your awesome pass" autoCorrect={false}
-                           secureTextEntry={true} selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1}
-                           onChangeText={this.onPasswordInputChange} />
+                           placeholderTextColor={colorPalette.textInputPlaceholder} autoCorrect={false} returnKeyType="next"
+                           onChangeText={this.onEmailInputChange} onSubmitEditing={ evt => this.refs.inputPass.focus() } />
+                <TextInput ref="inputPass" value={this.state.password} style={styles.fieldInput} placeholder="your awesome pass"
+                           selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1} autoCorrect={false}
+                           placeholderTextColor={colorPalette.textInputPlaceholder} secureTextEntry={true}
+                           onChangeText={this.onPasswordInputChange} onSubmitEditing={this.doRegister} />
                 <View style={styles.buttonsWrapper}>
                     <Button color={colorPalette.s4} title="Register" onPress={this.doRegister} disabled={hasError} />
                     <Text> Or </Text>

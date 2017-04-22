@@ -24,7 +24,7 @@ import ViewerQuery from '../../query/ViewerQuery'
 
 import { createRenderer } from '../../util/RelayUtils'
 
-import Todo from './components/Todo'
+import TodoItem from './components/TodoItem'
 
 import AddTodoMutation from './mutation/AddTodoMutation'
 import DeleteTodoMutation from './mutation/DeleteTodoMutation'
@@ -222,7 +222,7 @@ class TodoList extends Component {
             ]} style={{marginVertical: 10, marginHorizontal: 5}} autoClose={true}
                       close={this.state.currentTodoWithOpenedSwipe && this.state.currentTodoWithOpenedSwipe !== todo}
                       onClose={() => this.onSwipeClose( todo )} onOpen={() => this.onSwipeOpen( todo )}>
-                <Todo key={todo.id} onLongPress={this.selectTodo} onPress={this.deselectOrSelectTodo}
+                <TodoItem key={todo.id} onLongPress={this.selectTodo} onPress={this.deselectOrSelectTodo}
                       onTodoCompletedStatusChanged={() => this.props.relay.forceFetch()} isSelected={isSelected} todo={todo}/>
             </Swipeout>
         )
@@ -385,7 +385,7 @@ export default createRenderer( TodoList, {
                     edges {
                         node {
                             id
-                            ${Todo.getFragment( 'todo' )}
+                            ${TodoItem.getFragment( 'todo' )}
                         }
                     }
                     count

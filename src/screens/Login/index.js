@@ -35,6 +35,7 @@ class Login extends Component {
 
     static navigationOptions = {
         title: 'Login',
+        headerLeft: null
     }
 
     constructor( props: Props ) {
@@ -44,10 +45,10 @@ class Login extends Component {
         const {params} = props.navigation.state
 
         this.state = {
-            email           : params.email || 'my-email@domain.com',
-            password        : params.password || 'my secure pass',
-            isValidEmail    : isValidEmail( params.email || 'my-email@domain.com' ),
-            isValidPassword : isValidLength( params.password || 'my secure pass', {min : 3} )
+            email           : params.email,
+            password        : params.password,
+            isValidEmail    : isValidEmail( params.email ),
+            isValidPassword : isValidLength( params.password, {min : 3} )
         }
     }
 
@@ -160,12 +161,15 @@ class Login extends Component {
 
         return (
             <View style={styles.container}>
-                <TextInput value={this.state.email} style={styles.fieldInput} placeholder="your-email@domain.tld"
+                <TextInput ref="inputEmail" value={this.state.email} style={styles.fieldInput} placeholder="your-email@domain.tld"
                            keyboardType="email-address" selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1}
-                           autoCorrect={false} autoFocus={true} onChangeText={this.onEmailInputChange} />
-                <TextInput value={this.state.password} style={styles.fieldInput} placeholder="your awesome pass" autoCorrect={false}
-                           secureTextEntry={true} selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1}
-                           onChangeText={this.onPasswordInputChange} />
+                           placeholderTextColor={colorPalette.textInputPlaceholder} autoCorrect={false} autoFocus={true}
+                           returnKeyType="next" onChangeText={this.onEmailInputChange}
+                           onSubmitEditing={() => this.refs.inputPass.focus()} />
+                <TextInput ref="inputPass" value={this.state.password} style={styles.fieldInput} placeholder="your awesome pass"
+                           autoCorrect={false} secureTextEntry={true} selectionColor={colorPalette.s1}
+                           underlineColorAndroid={colorPalette.s1} placeholderTextColor={colorPalette.textInputPlaceholder}
+                           onChangeText={this.onPasswordInputChange} onSubmitEditing={this.doLogin} />
                 <View style={styles.buttonsWrapper}>
                     <Button color={colorPalette.s4} title="Login" onPress={this.doLogin} disabled={hasError} />
                     <Text> Or </Text>

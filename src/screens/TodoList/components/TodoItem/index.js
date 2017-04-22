@@ -39,7 +39,7 @@ type State = {
     text: string,
 }
 
-class Todo extends Component {
+class TodoItem extends Component {
 
     static propTypes = {
         todo                        : PropTypes.object.isRequired,
@@ -178,7 +178,7 @@ class Todo extends Component {
     }
 }
 
-export default Relay.createContainer( Todo, {
+export default Relay.createContainer( TodoItem, {
     fragments: {
         todo : () => Relay.QL`
             fragment on Todo {
