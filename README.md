@@ -1,6 +1,6 @@
-# React Native Sample Todo App
+# React Native Relay Sample Todo App
 
-This project is (will be) the result of a code challenge made for a job 
+This project is the result of a code challenge made for a job 
   opportunity at [@entria](https://github.com/entria), and also as a self-learning project. 
 
 ### Server
@@ -8,6 +8,9 @@ This project is (will be) the result of a code challenge made for a job
 The included server is based on [@entria/graphql-dataloader-boilerplate](https://github.com/entria/graphql-dataloader-boilerplate),
  created using the awesome tool  [create-graphql](https://github.com/lucasbento/create-graphql).
 
+### Demo
+![Todo Demo 1](./images/todo-1.gif)
+![Todo Demo 2](./images/todo-2.gif)
 
 #### Challenge Entria
 
