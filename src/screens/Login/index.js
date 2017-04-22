@@ -64,7 +64,7 @@ class Login extends Component {
                     password : '',
                     redirectedOnLogin : true,
                 }}),
-                NavigationActions.navigate({ routeName: 'TodoList' })
+                NavigationActions.navigate({ routeName: 'TodoList', params : {}})
             ]
         })
 
