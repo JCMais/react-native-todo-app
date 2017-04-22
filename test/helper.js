@@ -1,6 +1,7 @@
 // @flow
 import mongoose from 'mongoose';
 
+import User from '../src/server/model/User'
 import * as loaders from '../src/server/loader'
 import type { UserInterface } from '../src/ProjectTypes'
 
@@ -55,6 +56,30 @@ export async function connectToDatabase() {
 export async function clearDatabase() {
 
     return mongoose.connection.db.dropDatabase()
+}
+
+export async function createTestLoggedUser() {
+
+    const user = new User( {
+        name     : 'Logged User',
+        email    : 'logged@user.com',
+    } )
+
+    await user.save()
+
+    return user
+}
+
+export async function createTestAnotherUser() {
+
+    const user = new User( {
+        name : 'Another User',
+        email: 'another@user.com',
+    })
+
+    await user.save()
+
+    return user
 }
 
 export function getContext( user: ?UserInterface ) {

@@ -22,7 +22,7 @@ export default class ConnectionFromMongoCursor {
      * be the default.
      */
     static getOffsetWithDefault( cursor, defaultOffset ) {
-        
+
         if ( cursor === undefined || cursor === null ) {
 
             return defaultOffset

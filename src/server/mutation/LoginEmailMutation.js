@@ -1,6 +1,9 @@
 // @flow
 
-import { GraphQLString, GraphQLNonNull } from 'graphql'
+import {
+    GraphQLString,
+    GraphQLNonNull,
+} from 'graphql'
 import { mutationWithClientMutationId } from 'graphql-relay'
 
 import UserType from '../type/UserType'
@@ -19,13 +22,13 @@ export default mutationWithClientMutationId( {
         },
     },
     outputFields        : {
-        viewer : {
-            type : UserType,
-            resolve: ( {user} ) => user,
-        },
         token : {
             type    : GraphQLString,
             resolve : ( {token} ) => token,
+        },
+        viewer : {
+            type : UserType,
+            resolve: ( {user} ) => user,
         },
         error : {
             type    : GraphQLString,
@@ -40,8 +43,8 @@ export default mutationWithClientMutationId( {
 
             return {
                 token : null,
+                user  : null,
                 error : errors.INVALID_EMAIL_PASSWORD,
-                user  : null
             }
         }
 
@@ -51,8 +54,8 @@ export default mutationWithClientMutationId( {
 
             return {
                 token : null,
+                user  : null,
                 error : errors.INVALID_EMAIL_PASSWORD,
-                user  : null
             }
         }
 

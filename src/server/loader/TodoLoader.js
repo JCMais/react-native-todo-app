@@ -55,17 +55,35 @@ export default class Todo {
             where.text = {$regex : new RegExp( `^${args.search}`, 'ig' )}
         }
 
-        if ( args.hideCompleted ) {
-            where.complatedAt = {$eq : null}
-        }
-
         where._author = ctx.user.id
 
-        const todos = TodoModel.find( where, {}, {
-            _id : {
-                order : 1
+        if ( args.hideCompleted ) {
+            where.completedAt = {$eq : null}
+        }
+
+        // (non-)null date ordering on mongo
+        // http://stackoverflow.com/a/21841284/710693
+        TodoModel.find(
+            {...where, completedAt : { $eq: null } },
+            {},
+            {
+                _id : {
+                    order : 1
+                }
             }
-        } )
+        )
+
+        const todos = TodoModel.find(
+            where,
+            {},
+            {
+                _id : {
+                    order : 1
+                }
+            }
+        ).sort({
+            completedAt : 1
+        })
 
         return ConnectionFromMongoCursor.connectionFromMongoCursor( ctx, todos, args, Todo.load );
     }

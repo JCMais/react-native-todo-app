@@ -1,3 +1,15 @@
+input AddTodoInput {
+  text: String!
+  clientMutationId: String
+}
+
+type AddTodoPayload {
+  todoEdge: TodoEdge
+  viewer: User
+  error: String
+  clientMutationId: String
+}
+
 input ChangePasswordInput {
   oldPassword: String!
 
@@ -8,7 +20,32 @@ input ChangePasswordInput {
 
 type ChangePasswordPayload {
   error: String
-  me: User
+  viewer: User
+  clientMutationId: String
+}
+
+input ChangeTodoTextInput {
+  id: ID!
+  text: String!
+  clientMutationId: String
+}
+
+type ChangeTodoTextPayload {
+  todo: Todo
+  viewer: User
+  error: String
+  clientMutationId: String
+}
+
+input DeleteTodoInput {
+  id: [ID!]
+  clientMutationId: String
+}
+
+type DeleteTodoPayload {
+  deletedId: [ID]
+  viewer: User
+  error: String
   clientMutationId: String
 }
 
@@ -19,16 +56,20 @@ input LoginEmailInput {
 }
 
 type LoginEmailPayload {
-  viewer: User
   token: String
+  viewer: User
   error: String
   clientMutationId: String
 }
 
 type Mutation {
-  LoginEmail(input: LoginEmailInput!): LoginEmailPayload
   RegisterEmail(input: RegisterEmailInput!): RegisterEmailPayload
+  LoginEmail(input: LoginEmailInput!): LoginEmailPayload
   ChangePassword(input: ChangePasswordInput!): ChangePasswordPayload
+  AddTodo(input: AddTodoInput!): AddTodoPayload
+  ChangeTodoText(input: ChangeTodoTextInput!): ChangeTodoTextPayload
+  ToggleTodoStatus(input: ToggleTodoStatusInput!): ToggleTodoStatusPayload
+  DeleteTodo(input: DeleteTodoInput!): DeleteTodoPayload
 }
 
 # An object with an ID
@@ -71,6 +112,7 @@ input RegisterEmailInput {
 
 type RegisterEmailPayload {
   token: String
+  viewer: User
   error: String
   clientMutationId: String
 }
@@ -105,6 +147,19 @@ type TodoEdge {
   cursor: String!
 }
 
+input ToggleTodoStatusInput {
+  id: ID!
+  completed: Boolean!
+  clientMutationId: String
+}
+
+type ToggleTodoStatusPayload {
+  todo: Todo
+  viewer: User
+  error: String
+  clientMutationId: String
+}
+
 # User data
 type User implements Node {
   # The ID of an object
@@ -113,5 +168,5 @@ type User implements Node {
   name: String
   email: String
   active: Boolean
-  todos(after: String, first: Int, before: String, last: Int, search: String): TodoConnection
+  todos(after: String, first: Int, before: String, last: Int, search: String, hideCompleted: Boolean = false): TodoConnection
 }

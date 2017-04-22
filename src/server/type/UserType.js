@@ -39,11 +39,14 @@ export default new GraphQLObjectType( {
             type: TodoConnection.connectionType,
             args: {
                 ...connectionArgs,
+                // In case ordering is needed, we could do it like the following:
+                //  https://github.com/graphql/graphql-relay-js/issues/20#issuecomment-220494222
                 search: {
                     type: GraphQLString,
                 },
                 hideCompleted: {
                     type: GraphQLBoolean,
+                    defaultValue: false,
                 },
             },
             resolve : async ( obj, args, ctx, info ) => await TodoLoader.loadTodos( ctx, args ),

@@ -1,42 +1,47 @@
 // @flow
 
 import {
-    GraphQLString,
     GraphQLNonNull,
+    GraphQLString,
 } from 'graphql'
 
 import { mutationWithClientMutationId } from 'graphql-relay'
 
 import errors from '../../errors'
-import { User } from '../model'
 import { generateToken } from '../auth'
+import { User } from '../model'
+import UserType from '../type/UserType'
 
 export default mutationWithClientMutationId( {
-    name                : 'RegisterEmail',
-    inputFields         : {
-        name     : {
-            type : new GraphQLNonNull( GraphQLString ),
+    name               : 'RegisterEmail',
+    inputFields        : {
+        name    : {
+            type: new GraphQLNonNull( GraphQLString ),
         },
-        email    : {
-            type : new GraphQLNonNull( GraphQLString ),
+        email   : {
+            type: new GraphQLNonNull( GraphQLString ),
         },
-        password : {
-            type : new GraphQLNonNull( GraphQLString ),
+        password: {
+            type: new GraphQLNonNull( GraphQLString ),
         },
     },
-    outputFields        : {
+    outputFields       : {
         token : {
-            type    : GraphQLString,
-            resolve : ( {token} ) => token,
+            type   : GraphQLString,
+            resolve: ( {token} ) => token,
+        },
+        viewer: {
+            type   : UserType,
+            resolve: ( {user} ) => user,
         },
         error : {
-            type    : GraphQLString,
-            resolve : ( {error} ) => error,
+            type   : GraphQLString,
+            resolve: ( {error} ) => error,
         },
     },
-    mutateAndGetPayload : async ( { name, email, password } ) => {
+    mutateAndGetPayload: async ( {name, email, password} ) => {
 
-        let user = await User.findOne( { email : email.toLowerCase() } )
+        let user = await User.findOne( {email: email.toLowerCase()} )
 
         // not validating the input here
         //  We are trusting the client, but keep in mind
@@ -45,8 +50,9 @@ export default mutationWithClientMutationId( {
         if ( user ) {
 
             return {
-                token : null,
-                error : errors.EMAIL_ALREADY_IN_USE,
+                token: null,
+                user : null,
+                error: errors.EMAIL_ALREADY_IN_USE,
             }
         }
 
@@ -59,8 +65,9 @@ export default mutationWithClientMutationId( {
         await user.save()
 
         return {
-            token : generateToken( user ),
-            error : null,
+            token: generateToken( user ),
+            user : user,
+            error: null,
         }
     },
 } )
