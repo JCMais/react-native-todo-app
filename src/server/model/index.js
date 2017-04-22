@@ -1,2 +1,2 @@
-export TodoItem from './TodoItem'
-export User from './User'
+export { default as TodoItem } from './TodoItem'
+export { default as User } from './User'

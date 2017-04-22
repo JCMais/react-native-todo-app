@@ -12,7 +12,7 @@ import ConnectionFromMongoConnection from '../connection/ConnectionFromMongoCurs
 import TodoConnection from '../connection/TodoConnection'
 import { TodoLoader } from '../loader'
 import { TodoItem } from '../model'
-import UserType from '../type/UserType'
+import { UserType } from '../type'
 
 const {edgeType: GraphQLTodoEdge} = TodoConnection
 

@@ -16,7 +16,7 @@ import errors from '../../errors'
 import { GraphQLContext } from '../../ProjectTypes'
 import { TodoItem } from '../model'
 import { TodoLoader } from '../loader'
-import UserType from '../type/UserType'
+import { UserType } from '../type'
 
 export default mutationWithClientMutationId( {
     name        : 'DeleteTodo',

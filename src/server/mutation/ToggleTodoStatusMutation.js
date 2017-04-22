@@ -17,9 +17,7 @@ import errors from '../../errors'
 import { GraphQLContext } from '../../ProjectTypes'
 import { TodoLoader } from '../loader'
 import { TodoItem } from '../model'
-import TodoType from '../type/TodoType'
-
-import UserType from '../type/UserType'
+import { TodoType, UserType } from '../type'
 
 export default mutationWithClientMutationId( {
     name               : 'ToggleTodoStatus',

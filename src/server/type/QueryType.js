@@ -4,7 +4,7 @@ import { GraphQLObjectType } from 'graphql'
 import { NodeField } from '../interface/NodeInterface'
 
 import UserLoader from '../loader/UserLoader'
-import UserType from './UserType'
+import { UserType } from './'
 
 export default new GraphQLObjectType( {
     name        : 'Query',

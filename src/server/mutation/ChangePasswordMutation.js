@@ -7,7 +7,7 @@ import {
 import { mutationWithClientMutationId } from 'graphql-relay'
 
 import errors from '../../errors'
-import UserType from '../type/UserType'
+import { UserType } from '../type'
 
 export default mutationWithClientMutationId( {
     name               : 'ChangePassword',

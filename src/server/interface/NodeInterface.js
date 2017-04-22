@@ -6,8 +6,7 @@ import {
 } from 'graphql-relay'
 
 import { UserLoader, TodoLoader } from '../loader'
-import UserType from '../type/UserType'
-import TodoType from '../type/TodoType'
+import { TodoType, UserType } from '../type'
 
 const { nodeInterface, nodeField } = nodeDefinitions(
 

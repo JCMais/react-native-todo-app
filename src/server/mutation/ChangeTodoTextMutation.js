@@ -15,8 +15,7 @@ import { GraphQLContext } from '../../ProjectTypes'
 import { TodoItem } from '../model'
 import { TodoLoader } from '../loader'
 
-import UserType from '../type/UserType'
-import TodoType from '../type/TodoType'
+import { TodoType, UserType } from '../type'
 
 import errors from '../../errors'
 

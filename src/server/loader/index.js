@@ -1,2 +1,2 @@
-export TodoLoader from './TodoLoader'
-export UserLoader from './UserLoader'
+export { default as TodoLoader } from './TodoLoader'
+export { default as UserLoader } from './UserLoader'
