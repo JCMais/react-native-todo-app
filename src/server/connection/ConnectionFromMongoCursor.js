@@ -22,8 +22,8 @@ export default class ConnectionFromMongoCursor {
      * be the default.
      */
     static getOffsetWithDefault( cursor, defaultOffset ) {
-
-        if ( cursor === undefined ) {
+        
+        if ( cursor === undefined || cursor === null ) {
 
             return defaultOffset
         }
@@ -43,8 +43,8 @@ export default class ConnectionFromMongoCursor {
 
     /**
      * Accepts a mongodb cursor and connection arguments, and returns a connection
-     * object for use in GraphQL. It uses array offsets as pagination, so pagiantion
-     * will work only if the data set is satic.
+     * object for use in GraphQL. It uses array offsets as pagination, so pagination
+     * will work only if the data set is static.
      */
     static async connectionFromMongoCursor( ctx: GraphQLContext, inMongoCursor, args = {}, loader ) {
 
@@ -64,7 +64,6 @@ export default class ConnectionFromMongoCursor {
 
         const beforeOffset = ConnectionFromMongoCursor.getOffsetWithDefault( before, count )
         const afterOffset  = ConnectionFromMongoCursor.getOffsetWithDefault( after, -1 )
-
 
         let startOffset = Math.max( -1, afterOffset ) + 1
         let endOffset   = Math.min( count, beforeOffset )
@@ -86,7 +85,6 @@ export default class ConnectionFromMongoCursor {
         // If supplied slice is too large, trim it down before mapping over it.
         mongodbCursor.skip( skip )
         mongodbCursor.limit( limit )
-
 
         // Short circuit if limit is 0; in that case, mongodb doesn't limit at all
         const slice = await mongodbCursor.exec()
