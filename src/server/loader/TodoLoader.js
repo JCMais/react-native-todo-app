@@ -4,7 +4,7 @@ import mongoose from 'mongoose'
 
 import type { TodoInterface, UserInterface, GraphQLContext, GraphQLViewerTodosArgs } from '../../ProjectTypes'
 import { TodoItem as TodoModel } from '../model'
-import mongooseLoader from './helper/mongoose'
+import { mongooseLoader } from './helper/mongoose'
 import ConnectionFromMongoCursor from '../connection/ConnectionFromMongoCursor'
 
 export default class Todo {

@@ -24,7 +24,7 @@ function normalizeResults( keys, indexField, cacheKeyFn = key => key.toString() 
     }
 }
 
-export default async ( model, ids: Array<string> ) => {
+export async function mongooseLoader( model, ids: Array<string> ) {
 
     const results = await model.find( {_id : {$in : ids}} );
 
