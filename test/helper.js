@@ -1,9 +1,9 @@
 // @flow
 import mongoose from 'mongoose';
 
-import User from '../src/server/model/User'
-import * as loaders from '../src/server/loader'
-import type { UserInterface } from '../src/ProjectTypes'
+import User from '../server/model/User'
+import * as loaders from '../server/loader'
+import type { UserInterface } from '../common/ProjectTypes'
 
 process.env.NODE_ENV = 'test';
 

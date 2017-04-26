@@ -13,7 +13,7 @@ import Relay from 'react-relay'
 
 import colorPalette from '../../../../colorPalette'
 import Checkbox from '../../../../components/Checkbox'
-import errors from '../../../../errors'
+import errors from '../../../../../common/errors'
 import ChangeTodoTextMutation from '../../mutation/ChangeTodoTextMutation'
 import ToggleTodoStatusMutation from '../../mutation/ToggleTodoStatusMutation'
 

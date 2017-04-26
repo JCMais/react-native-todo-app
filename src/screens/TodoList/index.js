@@ -17,7 +17,7 @@ import colorPalette from '../../colorPalette'
 import HeaderBackButton from '../../components/HeaderBackButton'
 import HeaderIconButton from '../../components/HeaderIconButton'
 
-import errors from '../../errors'
+import errors from '../../../common/errors'
 import { logout } from '../../login'
 
 import ViewerQuery from '../../query/ViewerQuery'

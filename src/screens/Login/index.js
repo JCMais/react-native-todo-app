@@ -17,7 +17,7 @@ import { login } from '../../login'
 import FadeInOutView from '../../components/FadeInOutView'
 import ViewerQuery from '../../query/ViewerQuery'
 import colorPalette from '../../colorPalette'
-import errors from '../../errors'
+import errors from '../../../common/errors'
 
 import LoginWithEmailMutation from './mutation/LoginWithEmailMutation'
 import styles from './styles'

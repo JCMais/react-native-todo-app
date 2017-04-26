@@ -8,19 +8,17 @@
         "url": "https://github.com/JCMais/react-native-todo-app"
     },
     "scripts": {
-        "build": "npm run clear && babel src/server --ignore *.spec.js --source-maps inline --out-dir dist --copy-files",
+        "build": "npm run clear && babel server --ignore *.spec.js --source-maps inline --out-dir dist --copy-files",
         "clear": "rimraf ./dist",
-        "start": "babel-node src/server/server.js",
-        "start:production": "node dist/server.js",
+        "start": "node dist/server.js",
         "start:app": "node node_modules/react-native/local-cli/cli.js start",
         "repl": "nodemon --config ./repl/nodemon.json ./repl.js --exec babel-node",
         "test": "jest --forceExit --runInBand --coverage",
         "test:watch": "jest --watch --coverage",
         "update-schema": "babel-node ./scripts/updateSchema.js",
-        "watch": "nodemon src/server.js --exec babel-node",
+        "watch": "nodemon server/server.js --exec babel-node",
         "flow": "flow status",
-        "flow:stop": "flow stop",
-        "react-devtools": "react-devtools"
+        "flow:stop": "flow stop"
     },
     "dependencies": {
         "babel-polyfill": "^6.23.0",
