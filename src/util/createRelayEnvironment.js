@@ -9,7 +9,6 @@ import {
     ViewerHandler,
 } from 'relay-runtime'
 
-import DateHandler from '../handler/DateHandler'
 import { getToken } from '../auth'
 
 // See https://facebook.github.io/relay/docs/relay-environment.html
@@ -52,7 +51,6 @@ function handlerProvider( handle ) {
         // Augment (or remove from) this list:
         case 'connection': return ConnectionHandler
         case 'viewer': return ViewerHandler
-        case 'date': return DateHandler
     }
     throw new Error(
         `handlerProvider: No handler provided for ${handle}`
