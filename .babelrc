@@ -1,11 +1,17 @@
 {
   "retainLines": true,
   "plugins": [
-    "./plugins/babelRelayPlugin",
+    ["relay", {
+      "compat": true,
+      "schema": "data/schema.graphql",
+      "enforceSchema": true,
+      "suppressWarnings": false,
+      "debug": false
+    }],
     "transform-class-properties",
     "transform-flow-strip-types"
   ],
   "presets": [
-    "react-native-stage-0"
+    "react-native-stage-0/decorator-support"
   ]
 }

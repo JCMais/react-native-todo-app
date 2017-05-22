@@ -1,57 +1,62 @@
-import Relay from 'react-relay'
+import { commitMutation, graphql } from 'react-relay/compat'
+import { ConnectionHandler } from 'relay-runtime'
 
-export default class AddTodoMutation extends Relay.Mutation {
-
-    static fragments = {
-        viewer: () => Relay.QL`
-            fragment on User {
-                id
+const mutation = graphql`
+    mutation AddTodoMutation( $input: AddTodoInput! ) {
+        AddTodo(input: $input) {
+            error
+            todoEdge {
+                node {
+                    id
+                    text
+                }
             }
-        `,
-    }
-
-    getMutation() {
-        return Relay.QL`mutation {
-            AddTodo
-        }`;
-    }
-
-    getVariables() {
-        return {
-            text : this.props.text
         }
     }
+`
 
-    getFatQuery() {
-        return Relay.QL`
-            fragment on AddTodoPayload {
-                todoEdge
-                viewer {
-                    todos
-                }
-                error
-            }
-        `;
-    }
-
-    getConfigs() {
-        return [{
-            type: 'RANGE_ADD',
-            parentName: 'viewer',
-            parentID: this.props.viewer.id,
-            connectionName: 'todos',
-            edgeName: 'todoEdge',
-            rangeBehaviors: {
-                '': 'prepend',
-            },
-        }, {
-            type: 'REQUIRED_CHILDREN',
-            children: [Relay.QL`
-                fragment on AddTodoPayload {
-                    todoEdge
-                    error
-                }
-            `],
-        }];
-    }
+function sharedUpdater( store, user, newEdge ) {
+    const userProxy = store.get( user.id )
+    const conn = ConnectionHandler.getConnection(
+        userProxy,
+        'TodoList_todos',
+    )
+    ConnectionHandler.insertEdgeAfter( conn, newEdge )
 }
+
+let tempID = 0
+
+function commit( environment, text, user, onCompleted, onError ) {
+    return commitMutation(
+        environment,
+        {
+            mutation,
+            variables: {
+                input: { text },
+            },
+            updater: ( store ) => {
+                const payload = store.getRootField( 'AddTodo' )
+                const newEdge = payload.getLinkedRecord( 'todoEdge' )
+                sharedUpdater( store, user, newEdge )
+            },
+            optimisticUpdater: ( store ) => {
+                const id = 'client:newTodo:' + tempID++
+                const node = store.create( id, 'Todo' )
+
+                node.setValue( text, 'text' )
+                node.setValue( id, 'id' )
+
+                const newEdge = store.create(
+                    'client:newEdge:' + tempID++,
+                    'TodoEdge',
+                )
+                newEdge.setLinkedRecord( node, 'node' )
+                sharedUpdater( store, user, newEdge )
+            },
+            onCompleted,
+            onError,
+        },
+    )
+}
+
+export default { commit }

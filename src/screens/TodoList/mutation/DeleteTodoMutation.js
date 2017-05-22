@@ -1,61 +1,48 @@
-import Relay from 'react-relay'
+import { commitMutation, graphql } from 'react-relay/compat'
+import { ConnectionHandler } from 'relay-runtime'
 
-export default class DeleteTodoMutation extends Relay.Mutation {
-
-    static fragments = {
-        viewer: () => Relay.QL`
-            fragment on User {
-                id
-            }
-        `,
-        todos: () => Relay.QL`
-            fragment on TodoConnection {
-                edges {
-                    node {
-                        id
-                    }
-                }
-            }
-        `
-    }
-
-    getMutation() {
-        return Relay.QL`
-            mutation {
-                DeleteTodo
-            }
-        `
-    }
-
-    getVariables() {
-        return {
-            id : this.props.selectedTodos
+const mutation = graphql`
+    mutation DeleteTodoMutation( $input: DeleteTodoInput! ) {
+        DeleteTodo(input: $input) {
+            error
+            deletedId
         }
     }
+`
 
-    getFatQuery() {
-        return Relay.QL`
-            fragment on DeleteTodoPayload {
-                viewer {
-                    todos( first: 10 ) {
-                        count
-                    }
-                }
-                deletedId
-                error
-            }
-        `
-    }
-
-    getConfigs() {
-        return [
-            {
-                type               : 'NODE_DELETE',
-                parentName         : 'viewer',
-                parentID           : this.props.viewer.id,
-                connectionName     : 'todos',
-                deletedIDFieldName : 'deletedId',
-            }
-        ]
+function sharedUpdater( store, user, deletedIds ) {
+    const userProxy = store.get( user.id )
+    const conn = ConnectionHandler.getConnection(
+        userProxy,
+        'TodoList_todos',
+    )
+    for ( id of deletedIds ) {
+        ConnectionHandler.deleteNode(
+            conn,
+            id,
+        )
     }
 }
+
+function commit( environment, todosIds, user, onCompleted, onError ) {
+    return commitMutation(
+        environment,
+        {
+            mutation,
+            variables: {
+                input: { id: todosIds },
+            },
+            updater: ( store ) => {
+                const payload = store.getRootField( 'DeleteTodo' )
+                sharedUpdater( store, user, payload.getValue( 'deletedId' ) )
+            },
+            optimisticUpdater: ( store ) => {
+                sharedUpdater( store, user, todosIds )
+            },
+            onCompleted,
+            onError,
+        },
+    )
+}
+
+export default { commit }

@@ -32,6 +32,9 @@ build/
 local.properties
 *.iml
 
+# VSCode
+.vscode
+
 # node.js
 #
 node_modules/
@@ -61,3 +64,6 @@ docs
 
 # Env
 .env
+
+# relay-compiler generated files
+__generated__/

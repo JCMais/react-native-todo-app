@@ -80,12 +80,14 @@ export default mutationWithClientMutationId( {
             }
         }
 
-        const todo = new TodoItem( {
+        const todo = new TodoItem({
             _author: user,
             text   : text.trim(),
-        } )
-
+        })
         await todo.save()
+
+        user.todos.push( todo )
+        await user.save()
 
         return {
             id   : todo.id,

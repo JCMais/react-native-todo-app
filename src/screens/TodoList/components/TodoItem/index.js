@@ -1,3 +1,5 @@
+// @flow
+
 import React, {
     Component,
     PropTypes,
@@ -9,7 +11,7 @@ import {
     TouchableHighlight,
     View,
 } from 'react-native'
-import Relay from 'react-relay'
+import Relay, { graphql } from 'react-relay'
 
 import colorPalette from '../../../../colorPalette'
 import Checkbox from '../../../../components/Checkbox'
@@ -73,31 +75,39 @@ class TodoItem extends Component {
 
     onTodoStatusChange = ( isCompleted ) => {
 
-        this.props.relay.commitUpdate(
-            new ToggleTodoStatusMutation( {
-                todo     : this.props.todo,
-                completed: isCompleted,
-            } ),
-            {
-                onSuccess: response => {
+        const onCompleted = response => {
 
-                    const {error} = response.ToggleTodoStatus
+            const {error} = response.ToggleTodoStatus
 
-                    if ( error ) {
+            if ( error ) {
 
-                        Alert.alert(
-                            'Oops',
-                            'Something went wrong.',
-                        )
+                Alert.alert(
+                    'Oops',
+                    'Something went wrong.',
+                )
 
-                    } else {
+            } else {
 
-                        // unfortunately the order cannot be updated without a forceFetch
-                        // atleast I could not find a way to do it. Mostly related: https://github.com/facebook/relay/issues/1462
-                        this.props.onTodoCompletedStatusChanged && this.props.onTodoCompletedStatusChanged()
-                    }
-                },
-            },
+                // unfortunately the order cannot be updated without a forceFetch
+                // atleast I could not find a way to do it. Mostly related: https://github.com/facebook/relay/issues/1462
+                this.props.onTodoCompletedStatusChanged && this.props.onTodoCompletedStatusChanged()
+            }
+        }
+
+        // @TODO Handle onError duplication
+        const onError = error => {
+            Alert.alert(
+                'Oops',
+                'Something went wrong: ' + error.toString(),
+            )
+        }
+
+        ToggleTodoStatusMutation.commit(
+            this.props.relay.environment,
+            isCompleted,
+            this.props.todo,
+            onCompleted,
+            onError,
         )
     }
 
@@ -129,27 +139,36 @@ class TodoItem extends Component {
         } )
 
         if ( this.state.text !== this.props.todo.text ) {
-            this.props.relay.commitUpdate(
-                new ChangeTodoTextMutation( {
-                    todo: this.props.todo,
-                    text: this.state.text,
-                } ),
-                {
-                    onSuccess: response => {
 
-                        const {error} = response.ChangeTodoText
+            const onCompleted = response => {
 
-                        if ( error ) {
+                const {error} = response.ChangeTodoText
 
-                            const msg = error === errors.INVALID_TODO_TEXT ? 'Invalid todo text.' : 'Something went wrong.'
+                if ( error ) {
 
-                            Alert.alert(
-                                'Oops',
-                                msg,
-                            )
-                        }
-                    },
-                },
+                    const msg = error === errors.INVALID_TODO_TEXT ? 'Invalid todo text.' : 'Something went wrong.'
+
+                    Alert.alert(
+                        'Oops',
+                        msg,
+                    )
+                }
+            }
+
+            // @TODO Handle onError duplication
+            const onError = error => {
+                Alert.alert(
+                    'Oops',
+                    'Something went wrong: ' + error.toString(),
+                )
+            }
+
+            ChangeTodoTextMutation.commit(
+                this.props.relay.environment,
+                this.state.text,
+                this.props.todo,
+                onCompleted,
+                onError,
             )
         }
     }
@@ -178,16 +197,15 @@ class TodoItem extends Component {
     }
 }
 
-export default Relay.createContainer( TodoItem, {
-    fragments: {
-        todo : () => Relay.QL`
-            fragment on Todo {
-                id
-                text
-                completedAt
-                ${ChangeTodoTextMutation.getFragment( 'todo' )}
-                ${ToggleTodoStatusMutation.getFragment( 'todo' )}
-            }
-        `,
-    },
-})
+const TodoItemFragmentContainer = Relay.createFragmentContainer(
+    TodoItem,
+    graphql`
+        fragment TodoItem_todo on Todo {
+            id
+            text
+            completedAt
+        }
+    `
+)
+
+export default TodoItemFragmentContainer

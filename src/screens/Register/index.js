@@ -1,35 +1,44 @@
 // @flow
-import Relay from 'react-relay'
+
 import React, { Component } from 'react'
 import {
-    StyleSheet,
-    Text,
-    View,
-    TextInput,
-    Button,
     Alert,
+    Button,
+    Text,
+    TextInput,
+    View
 } from 'react-native'
-import { NavigationActions } from 'react-navigation'
+import {
+    NavigationActions,
+    withNavigation
+} from 'react-navigation'
+import Relay, { graphql } from 'react-relay'
+import hoistStatics from 'hoist-non-react-statics'
 
-import { isValidEmail, isValidLength } from '../../util/validator'
-import { createRenderer } from '../../util/RelayUtils'
-import { login } from '../../login'
+import errors from '../../../common/errors'
+import { login } from '../../auth'
+import colorPalette from '../../colorPalette'
 
 import FadeInOutView from '../../components/FadeInOutView'
-import ViewerQuery from '../../query/ViewerQuery'
-import colorPalette from '../../colorPalette'
-import errors from '../../../common/errors'
+
+import environment from '../../util/createRelayEnvironment'
+import {
+    isValidEmail,
+    isValidLength
+} from '../../util/validator'
 
 import RegisterEmailMutation from './mutation/RegisterEmailMutation'
 import styles from './styles'
 
-// If https://github.com/flowtype/flow-typed/issues/16 is resolved, we can better declare external types, and add the navigation below.
+// If https://github.com/flowtype/flow-typed/issues/16 is resolved,
+//  we can better declare external types, and add the navigation below.
 type Props = {
     viewer : {
         email : string
     }
 }
 
+@withNavigation
 class Register extends Component {
 
     static navigationOptions = {
@@ -98,8 +107,10 @@ class Register extends Component {
 
     doRegister = () => {
 
+        const { hasError, name, email, password, } = this.state;
+
         // we are not considering empty fields to set the hasError flag
-        if ( this.state.hasError || ( !this.state.name || !this.state.email || !this.state.password ) ) {
+        if ( hasError || ( !name || !email || !password ) ) {
 
             Alert.alert(
                 'Oops',
@@ -108,90 +119,95 @@ class Register extends Component {
             return
         }
 
-        this.props.relay.commitUpdate(
-            new RegisterEmailMutation({
-                name     : this.state.name,
-                email    : this.state.email,
-                password : this.state.password,
-                viewer   : this.props.viewer
-            }),
-            {
-                onSuccess: response => {
+        const onCompleted = ( { RegisterEmail } ) => {
 
-                    const { error, token } = response.RegisterEmail
+            const { error, token } = RegisterEmail
 
-                    if ( error ) {
+            if ( error ) {
 
-                        const msg = ( error === errors.EMAIL_ALREADY_IN_USE ? 'This email is already in use.' : 'Something went wrong.' )
+                const msg = ( error === errors.EMAIL_ALREADY_IN_USE ? 'This email is already in use.' : 'Something went wrong.' )
 
-                        Alert.alert(
-                            'Oops',
-                            msg
-                        )
+                Alert.alert(
+                    'Oops',
+                    msg
+                )
 
-                    } else {
+            } else {
 
-                        // if there are no errors, we got a token
-                        // Logging directly after register
+                // if there are no errors, we got a token
+                // Logging directly after register
 
-                        Alert.alert(
-                            'Yay!',
-                            'You have successfully registered and logged in.',
-                            [
-                                {
-                                    text : 'OK',
-                                    onPress : () => login( response.RegisterEmail.token ).then( () => {
+                Alert.alert(
+                    'Yay!',
+                    'You have successfully registered and logged in.',
+                    [
+                        {
+                            text : 'OK',
+                            onPress : () => login( token ).then( () => {
 
-                                        // reset the navigation so we have Login (empty) -> TodoList
+                                // reset the navigation so we have Login (empty) -> TodoList
 
-                                        const resetAction = NavigationActions.reset({
-                                            index: 1,
-                                            actions: [
-                                                NavigationActions.navigate({ routeName: 'Login', params : {
-                                                    email      : '',
-                                                    password   : '',
-                                                    redirectedOnLogin : true
-                                                }}),
-                                                NavigationActions.navigate({ routeName: 'TodoList', params: {} })
-                                            ]
-                                        })
+                                const resetAction = NavigationActions.reset({
+                                    index: 1,
+                                    actions: [
+                                        NavigationActions.navigate({ routeName: 'Login', params : {
+                                            email      : '',
+                                            password   : '',
+                                            redirectedOnLogin : true
+                                        }}),
+                                        NavigationActions.navigate({ routeName: 'TodoList', params: {} })
+                                    ]
+                                })
 
-                                        this.props.navigation.dispatch( resetAction )
+                                this.props.navigation.dispatch( resetAction )
 
-                                    }).catch( err => {
+                            }).catch( err => {
 
-                                        Alert.alert(
-                                            'Oops',
-                                            'Something went wrong: ' + err.toString()
-                                        )
-                                    })
-                                },
-                            ],
-                            { cancelable: false }
-                        )
-                    }
-                },
+                                Alert.alert(
+                                    'Oops',
+                                    'Something went wrong: ' + err.toString()
+                                )
+                            })
+                        },
+                    ],
+                    { cancelable: false }
+                )
             }
+        }
+
+        // @TODO Handle onError duplication
+        const onError = error => {
+            Alert.alert(
+                'Oops',
+                'Something went wrong: ' + error.toString(),
+            )
+        }
+
+        RegisterEmailMutation.commit(
+            this.props.relay.environment,
+            name, email, password,
+            onCompleted, onError,
         )
     }
 
     render() {
 
+        const { name, email, password, isValidName, isValidEmail, isValidPassword } = this.state;
+
         // we probably should use a validation library 🤔
-        const hasError = !!( this.state.name || this.state.email || this.state.password )
-                            && ( !this.state.isValidName || !this.state.isValidEmail || !this.state.isValidPassword )
+        const hasError = !!( name || email || password ) && ( !isValidName || !isValidEmail || !isValidPassword )
 
         return (
             <View style={styles.container}>
-                <TextInput ref="inputName" value={this.state.name} style={styles.fieldInput} placeholder="Jon Doe"
+                <TextInput ref="inputName" value={name} style={styles.fieldInput} placeholder="Jon Doe"
                            selectionColor={colorPalette.s1} placeholderTextColor={colorPalette.textInputPlaceholder}
                            underlineColorAndroid={colorPalette.s1} autoCorrect={false} autoFocus={true} returnKeyType="next"
                            onChangeText={this.onNameInputChange} onSubmitEditing={ evt => this.refs.inputEmail.focus() } />
-                <TextInput ref="inputEmail" value={this.state.email} style={styles.fieldInput} placeholder="your-email@domain.tld"
+                <TextInput ref="inputEmail" value={email} style={styles.fieldInput} placeholder="your-email@domain.tld"
                            keyboardType="email-address" selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1}
                            placeholderTextColor={colorPalette.textInputPlaceholder} autoCorrect={false} returnKeyType="next"
                            onChangeText={this.onEmailInputChange} onSubmitEditing={ evt => this.refs.inputPass.focus() } />
-                <TextInput ref="inputPass" value={this.state.password} style={styles.fieldInput} placeholder="your awesome pass"
+                <TextInput ref="inputPass" value={password} style={styles.fieldInput} placeholder="your awesome pass"
                            selectionColor={colorPalette.s1} underlineColorAndroid={colorPalette.s1} autoCorrect={false}
                            placeholderTextColor={colorPalette.textInputPlaceholder} secureTextEntry={true}
                            onChangeText={this.onPasswordInputChange} onSubmitEditing={this.doRegister} />
@@ -209,14 +225,42 @@ class Register extends Component {
 }
 
 // Create a Relay.Renderer container
-export default createRenderer( Register, {
-    queries: { ...ViewerQuery },
-    fragments: {
-        viewer: () => Relay.QL`
-            fragment on User {
-                email
-            }
-        `,
-    },
+const RegisterFragmentContainer = Relay.createFragmentContainer(
+    Register,
+    graphql`
+        fragment Register_viewer on User {
+            email
+        }
+    `
+)
 
-});
+// @TODO Handle QueryRenderer duplication
+const RegisterQueryRender = () => {
+    return (
+        <Relay.QueryRenderer
+            environment={environment}
+            query={graphql`
+                query RegisterQuery {
+                    viewer {
+                        ...Register_viewer
+                    }
+                }
+            `}
+            render={( { error, props } ) => {
+
+                if ( error ) {
+
+                    // @TODO do something on error
+
+                } else if ( props ) {
+
+                    return <RegisterFragmentContainer viewer={props.viewer} />
+                }
+
+                return <Text>Loading...</Text>
+            }}
+        />
+    )
+}
+
+export default hoistStatics( RegisterQueryRender, Register )

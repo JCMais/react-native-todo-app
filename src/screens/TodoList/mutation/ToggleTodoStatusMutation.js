@@ -1,67 +1,47 @@
-import Relay from 'react-relay'
+import { commitMutation, graphql } from 'react-relay'
 
-export default class ToggleTodoStatusMutation extends Relay.Mutation {
-
-    static fragments = {
-        todo: () => Relay.QL`
-            fragment on Todo {
+const mutation = graphql`
+    mutation ToggleTodoStatusMutation( $input: ToggleTodoStatusInput! ) {
+        ToggleTodoStatus(input: $input) {
+            error
+            todo {
                 id
                 completedAt
             }
-        `
-    }
-
-    getMutation() {
-        return Relay.QL`mutation {
-            ToggleTodoStatus
-        }`
-    }
-
-    getVariables() {
-        return {
-            id  : this.props.todo.id,
-            completed : this.props.completed,
         }
     }
+`
 
-    getFatQuery() {
-        return Relay.QL`
-            fragment on ToggleTodoStatusPayload {
-                todo {
-                    completedAt
-                }
-                viewer {
-                    todos
-                }
-                error
-            }
-        `
-    }
-
-    getConfigs() {
-        return [{
-            type: 'FIELDS_CHANGE',
-            fieldIDs: {
-                todo : this.props.todo.id,
-            }
-        }, {
-            type : 'REQUIRED_CHILDREN',
-            children: [
-                Relay.QL`
-                    fragment on ToggleTodoStatusPayload {
-                        error,
-                    }
-                `,
-            ],
-        }]
-    }
-
-    getOptimisticResponse() {
-        return {
+function getOptimisticResponse( completed, todo ) {
+    return {
+        ToggleTodoStatus: {
+            error: null,
             todo: {
-                id: this.props.todo.id,
-                completedAt: (new Date).toISOString(),
+                id: todo.id,
+                completedAt: completed ? (new Date).toISOString() : null,
             },
-        }
+        },
     }
 }
+function commit(
+    environment,
+    completed,
+    todo,
+    onCompleted,
+    onError,
+) {
+    return commitMutation(
+        environment,
+        {
+            mutation,
+            variables: {
+                input: { completed, id: todo.id },
+            },
+            optimisticResponse: () => getOptimisticResponse( completed, todo ),
+            onCompleted,
+            onError,
+        }
+    )
+}
+
+export default { commit }

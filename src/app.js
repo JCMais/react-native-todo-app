@@ -3,8 +3,6 @@ import React from 'react'
 import { StatusBar } from 'react-native'
 import { StackNavigator } from 'react-navigation'
 
-import getNetworkLayer from './util/getNetworkLayer'
-import RelayStore from './util/RelayStore'
 import HeaderBackButton from './components/HeaderBackButton'
 import Login from './screens/Login'
 import Register from './screens/Register'
@@ -12,7 +10,22 @@ import TodoList from './screens/TodoList'
 
 import colorPalette from './colorPalette'
 
-RelayStore.injectNetworkLayer( getNetworkLayer() )
+// https://github.com/facebook/relay/issues/1704
+(function(PolyfillSet) {
+    if (!PolyfillSet) {
+        return;
+    }
+    var testSet = new PolyfillSet();
+    if (testSet.size === undefined) {
+        if (testSet._c.size === 0) {
+            Object.defineProperty(PolyfillSet.prototype, 'size', {
+                get: function() {
+                    return this._c.size;
+                },
+            });
+        }
+    }
+})(require('babel-runtime/core-js/set').default);
 
 StatusBar.setBackgroundColor( colorPalette.statusBar )
 

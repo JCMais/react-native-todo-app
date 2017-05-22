@@ -1,33 +1,26 @@
-import Relay from 'react-relay'
+import { commitMutation, graphql } from 'react-relay'
 
-export default class RegisterEmailMutation extends Relay.Mutation {
+const mutation = graphql`
+    mutation RegisterEmailMutation( $input: RegisterEmailInput! ) {
+        RegisterEmail(input: $input) {
+            error
+            token
+        }
+    }
+`;
 
-    getMutation() {
-        return Relay.QL`mutation { RegisterEmail }`;
-    }
-
-    getVariables() {
-        return { name : this.props.name, email : this.props.email, password : this.props.password };
-    }
-    getFatQuery() {
-        return Relay.QL`
-            fragment on RegisterEmailPayload {
-                token,
-                error
-            }
-        `;
-    }
-    getConfigs() {
-        return [{
-            type: 'REQUIRED_CHILDREN',
-            children: [
-                Relay.QL`
-                    fragment on RegisterEmailPayload {
-                        token,
-                        error
-                    }
-                `,
-            ],
-        }];
-    }
+function commit( environment, name, email, password, onCompleted, onError ) {
+    return commitMutation(
+        environment,
+        {
+            mutation,
+            variables: {
+                input: { name, email, password },
+            },
+            onCompleted,
+            onError,
+        },
+    );
 }
+
+export default { commit };

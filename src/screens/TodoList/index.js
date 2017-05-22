@@ -1,3 +1,6 @@
+// @flow
+
+import hoistStatics from 'hoist-non-react-statics'
 import React, { Component } from 'react'
 import {
     Alert,
@@ -10,19 +13,19 @@ import {
 import Prompt from 'react-native-prompt'
 import Swipeout from 'react-native-swipeout'
 import Icon from 'react-native-vector-icons/FontAwesome'
-import { NavigationActions } from 'react-navigation'
+import {
+    NavigationActions,
+    withNavigation,
+} from 'react-navigation'
+import Relay, { graphql } from 'react-relay'
 
-import Relay from 'react-relay'
+import errors from '../../../common/errors'
+import { logout } from '../../auth'
 import colorPalette from '../../colorPalette'
 import HeaderBackButton from '../../components/HeaderBackButton'
 import HeaderIconButton from '../../components/HeaderIconButton'
 
-import errors from '../../../common/errors'
-import { logout } from '../../login'
-
-import ViewerQuery from '../../query/ViewerQuery'
-
-import { createRenderer } from '../../util/RelayUtils'
+import environment from '../../util/createRelayEnvironment'
 
 import TodoItem from './components/TodoItem'
 
@@ -39,19 +42,22 @@ type State = {
     isFetchingTop: boolean,
     isFetchingBottom: boolean,
     isPromptVisible: boolean,
-    selectedTodos: Array<string>,
+    selectedTodosIds: Array<string>,
     currentTodoWithOpenedSwipe: Todo,
 }
 
 const FETCH_N_ITEMS_AT_SCROLL_END = 10
 
-const todosDataSource = new ListView.DataSource( {rowHasChanged: ( todo1, todo2 ) => todo1.id !== todo2.id} )
+const todosDataSource = new ListView.DataSource( { rowHasChanged: ( todo1, todo2 ) => todo1.id !== todo2.id } )
 
+const initialVariables = { count: 10, cursor: null }
+
+@withNavigation
 class TodoList extends Component {
 
-    static navigationOptions = ( {navigation} ) => ({
-        title      : 'Todo List',
-        headerLeft : <HeaderBackButton
+    static navigationOptions = ( { navigation } ) => ({
+        title: 'Todo List',
+        headerLeft: <HeaderBackButton
             onPress={() => {
 
                 Alert.alert(
@@ -59,18 +65,18 @@ class TodoList extends Component {
                     'Do you really want to logout?',
                     [
                         {
-                            text   : 'Logout',
+                            text: 'Logout',
                             onPress: () => logout().then( () => {
 
                                 // not using navigation.goBack( null ) because we want to reset the params
 
                                 const resetAction = NavigationActions.reset( {
-                                    index  : 0,
+                                    index: 0,
                                     actions: [
                                         NavigationActions.navigate( {
                                             routeName: 'Login', params: {
-                                                email            : '',
-                                                password         : '',
+                                                email: '',
+                                                password: '',
                                                 redirectedOnLogin: false,
                                             },
                                         } ),
@@ -104,67 +110,76 @@ class TodoList extends Component {
         super( props )
 
         this.state = {
-            isFetchingTop             : false,
-            isFetchingBottom          : false,
-            isPromptVisible           : false,
-            selectedTodos             : [],
+            isFetchingTop: false,
+            isFetchingBottom: false,
+            isPromptVisible: false,
+            selectedTodosIds: [],
             currentTodoWithOpenedSwipe: null,
         }
     }
 
     componentWillUpdate( nextProps, nextState: State ) {
 
-        if ( !!this.state.selectedTodos.length !== !!nextState.selectedTodos.length ) {
+        if ( !!this.state.selectedTodosIds.length !== !!nextState.selectedTodosIds.length ) {
 
             this.props.navigation.setParams( {
-                right: !!nextState.selectedTodos.length && <HeaderIconButton onPress={this.removeSelectedTodos} iconName="trash"/>,
+                right: !!nextState.selectedTodosIds.length && <HeaderIconButton onPress={this.removeSelectedTodos} iconName="trash"/>,
             } )
         }
     }
 
     onRefresh = () => {
 
-        const {isFetchingTop} = this.state
+        const { todos } = this.props.viewer
 
-        if ( isFetchingTop ) return
+        this.setState( {
+            isLoading: true,
+        } )
 
-        this.setState( {isFetchingTop: true} )
+        this.props.relay.refetchConnection( todos.edges.length, ( err ) => {
 
-        this.props.relay.forceFetch( {}, readyState => {
-
-            // @TODO handle error
-            if ( readyState.done || readyState.aborted || readyState.error ) {
-
-                this.setState( {
-                    isFetchingTop   : false,
-                    isFetchingBottom: false,
-                } )
+            if ( err ) {
+                Alert.alert(
+                    'Oops',
+                    'Something went wrong while fetching new items: ' + err.toString(),
+                )
             }
+
+            this.setState( {
+                isLoading: false,
+            } )
         } )
     }
 
     onEndReached = () => {
 
-        const {isFetchingBottom} = this.state
-        const {todos}            = this.props.viewer
+        const { relay } = this.props;
 
-        if ( isFetchingBottom ) return
-        if ( !todos.pageInfo.hasNextPage ) return
+        if ( !relay.hasMore() || relay.isLoading() ) {
+            return;
+        }
 
-        this.setState( {isFetchingBottom: true} )
-
-        this.props.relay.setVariables( {
-            count: this.props.relay.variables.count + FETCH_N_ITEMS_AT_SCROLL_END,
-        }, readyState => {
-            if ( readyState.done || readyState.aborted ) {
-                this.setState( {isFetchingBottom: false} )
-            }
+        this.setState( {
+            isLoading: true,
         } )
+
+        relay.loadMore( FETCH_N_ITEMS_AT_SCROLL_END, ( err ) => {
+
+            if ( err ) {
+                Alert.alert(
+                    'Oops',
+                    'Something went wrong while fetching new items: ' + err.toString(),
+                )
+            }
+
+            this.setState( {
+                isLoading: false,
+            } );
+        } );
     }
 
     isTodoSelected = ( todo: Todo ) => {
-
-        return this.state.selectedTodos.indexOf( todo.id ) !== -1
+        return this.state.selectedTodosIds.indexOf( todo.id ) !== -1
     }
 
     selectTodo = ( todo: Todo ) => {
@@ -172,7 +187,7 @@ class TodoList extends Component {
         if ( !this.isTodoSelected( todo ) ) {
 
             this.setState( {
-                selectedTodos: [...this.state.selectedTodos, todo.id],
+                selectedTodosIds: [...this.state.selectedTodosIds, todo.id],
             } )
         }
     }
@@ -181,12 +196,12 @@ class TodoList extends Component {
 
         if ( this.isTodoSelected( todo ) ) {
 
-            this.setState( ( {selectedTodos} ) => ({
-                selectedTodos: selectedTodos.filter( selectedTodoId => selectedTodoId !== todo.id ),
+            this.setState( ( { selectedTodosIds } ) => ({
+                selectedTodosIds: selectedTodosIds.filter( selectedTodoId => selectedTodoId !== todo.id ),
             }) )
 
             // only select new nodes on press if there are already selected nodes.
-        } else if ( this.state.selectedTodos.length ) {
+        } else if ( this.state.selectedTodosIds.length ) {
 
             this.selectTodo( todo )
         }
@@ -208,22 +223,26 @@ class TodoList extends Component {
         } )
     }
 
-    renderRow = ( {node: todo} ) => {
+    renderRow = ( { node: todo } ) => {
 
         const isSelected = this.isTodoSelected( todo )
 
         return (
             <Swipeout right={[
                 {
-                    text           : 'Delete',
+                    text: 'Delete',
                     backgroundColor: '#ff4254',
-                    onPress        : () => this.removeTodo( todo ),
+                    onPress: () => this.removeTodo( todo ),
                 },
-            ]} style={{marginVertical: 10, marginHorizontal: 5}} autoClose={true}
+            ]} style={{ marginVertical: 10, marginHorizontal: 5 }} autoClose={true}
                       close={this.state.currentTodoWithOpenedSwipe && this.state.currentTodoWithOpenedSwipe !== todo}
                       onClose={() => this.onSwipeClose( todo )} onOpen={() => this.onSwipeOpen( todo )}>
-                <TodoItem key={todo.id} onLongPress={this.selectTodo} onPress={this.deselectOrSelectTodo}
-                      onTodoCompletedStatusChanged={() => this.props.relay.forceFetch()} isSelected={isSelected} todo={todo}/>
+                <TodoItem
+                    key={todo.id} onLongPress={this.selectTodo} onPress={this.deselectOrSelectTodo}
+                    onTodoCompletedStatusChanged={() => this.props.relay.refetchConnection( this.props.viewer.todos.edges.length )}
+                    isSelected={isSelected}
+                    todo={todo}
+                />
             </Swipeout>
         )
     }
@@ -241,100 +260,122 @@ class TodoList extends Component {
             isPromptVisible: false,
         } )
 
-        this.props.relay.commitUpdate(
-            new AddTodoMutation( {
-                viewer: this.props.viewer,
-                text  : value,
-            } ),
-            {
-                onSuccess: response => {
+        const onCompleted = ( { AddTodo } ) => {
 
-                    const {error} = response.AddTodo
+            const { error } = AddTodo
 
-                    if ( error ) {
+            if ( error ) {
 
-                        const msg = error === errors.INVALID_TODO_TEXT ? 'Invalid todo text.' : 'Something went wrong.'
+                const msg = error === errors.INVALID_TODO_TEXT ? 'Invalid todo text.' : 'Something went wrong.'
 
-                        Alert.alert(
-                            'Oops',
-                            msg,
-                        )
+                Alert.alert(
+                    'Oops',
+                    msg,
+                )
 
-                    }
-                },
-            },
+            }
+        }
+
+        // @TODO Handle onError duplication
+        const onError = error => {
+            Alert.alert(
+                'Oops',
+                'Something went wrong: ' + error.toString(),
+            )
+        }
+
+        AddTodoMutation.commit(
+            this.props.relay.environment,
+            value,
+            this.props.viewer,
+            onCompleted,
+            onError,
         )
     }
 
     removeSelectedTodos = () => {
 
-        if ( !this.state.selectedTodos.length ) {
+        if ( !this.state.selectedTodosIds.length ) {
             return
         }
 
-        this.props.relay.commitUpdate(
-            new DeleteTodoMutation( {
-                viewer       : this.props.viewer,
-                todos        : this.props.viewer.todos,
-                selectedTodos: this.state.selectedTodos,
-            } ),
-            {
-                onSuccess: response => {
+        const onCompleted = response => {
 
-                    this.setState( {
-                        selectedTodos: [],
-                    } )
+            this.setState( {
+                selectedTodosIds: [],
+            } )
 
-                    const {error} = response.DeleteTodo
+            const { error } = response.DeleteTodo
 
-                    if ( error ) {
+            if ( error ) {
 
-                        Alert.alert(
-                            'Oops',
-                            'Something went wrong.',
-                        )
+                Alert.alert(
+                    'Oops',
+                    'Something went wrong.',
+                )
 
-                    }
-                },
-            },
+            }
+        }
+
+        // @TODO Handle onError duplication
+        const onError = error => {
+            Alert.alert(
+                'Oops',
+                'Something went wrong: ' + error.toString(),
+            )
+        }
+
+        DeleteTodoMutation.commit(
+            this.props.relay.environment,
+            this.state.selectedTodosIds,
+            this.props.viewer,
+            onCompleted,
+            onError,
         )
     }
 
     removeTodo = ( todo: Todo ) => {
 
-        this.props.relay.commitUpdate(
-            new DeleteTodoMutation( {
-                viewer       : this.props.viewer,
-                todos        : this.props.viewer.todos,
-                selectedTodos: [todo.id],
-            } ),
-            {
-                onSuccess: response => {
+        const onCompleted = response => {
 
-                    const {error} = response.DeleteTodo
+            const { error } = response.DeleteTodo
 
-                    if ( error ) {
+            if ( error ) {
 
-                        Alert.alert(
-                            'Oops',
-                            'Something went wrong.',
-                        )
+                Alert.alert(
+                    'Oops',
+                    'Something went wrong.',
+                )
 
-                    } else {
+            } else {
 
-                        if ( this.isTodoSelected( todo ) ) {
+                if ( this.isTodoSelected( todo ) ) {
 
-                            this.deselectOrSelectTodo( todo )
-                        }
-                    }
-                },
-            },
+                    this.deselectOrSelectTodo( todo )
+                }
+            }
+        }
+
+        // @TODO Handle onError duplication
+        const onError = error => {
+            Alert.alert(
+                'Oops',
+                'Something went wrong: ' + error.toString(),
+            )
+        }
+
+        DeleteTodoMutation.commit(
+            this.props.relay.environment,
+            [todo],
+            this.props.viewer,
+            onCompleted,
+            onError,
         )
     }
 
     render() {
 
-        const {todos} = this.props.viewer
+        const { todos } = this.props.viewer
 
         return (
             <View style={styles.container}>
@@ -349,7 +390,7 @@ class TodoList extends Component {
                     ? <ListView style={styles.todoList} dataSource={todosDataSource.cloneWithRows( todos.edges )}
                                 renderRow={this.renderRow} onEndReached={this.onEndReached}
                                 enableEmptySections={true} removeClippedSubviews={true}
-                                pageSize={2} initialListSize={2} scrollRenderAheadDistance={1000}
+                                pageSize={2} initialListSize={initialVariables.count} scrollRenderAheadDistance={100}
                                 renderSeparator={ ( secID, rowID ) => <View style={styles.separator} key={rowID}/> }
                                 refreshControl={
                                     <RefreshControl
@@ -360,7 +401,7 @@ class TodoList extends Component {
                     : <View style={styles.noTodosMessageContainer}><Text style={styles.noTodosMessage}><Icon
                         style={styles.noTodosMessage} name="frown-o"/> No todos available</Text></View>
                 }
-                <View style={{backgroundColor: colorPalette.bgDark, padding: 8, alignSelf: "stretch"}}>
+                <View style={{ backgroundColor: colorPalette.bgDark, padding: 8, alignSelf: "stretch" }}>
                     <Button onPress={this.onAddTodoButtonPress} title="Add Todo" color={colorPalette.s3}/>
                 </View>
             </View>
@@ -368,30 +409,92 @@ class TodoList extends Component {
     }
 }
 
-export default createRenderer( TodoList, {
-    queries         : ViewerQuery,
-    initialVariables: {
-        count: FETCH_N_ITEMS_AT_SCROLL_END,
-    },
-    fragments       : {
-        viewer: () => Relay.QL`
-            fragment on User {
-                ${AddTodoMutation.getFragment( 'viewer' )}
-                ${DeleteTodoMutation.getFragment( 'viewer' )}
-                todos( first: $count ) {
-                    pageInfo {
-                        hasNextPage
+const TodoListPaginationContainer = Relay.createPaginationContainer(
+    TodoList,
+    graphql`
+        fragment TodoList_viewer on User {
+            id
+            todos(
+                first: $count
+                after: $cursor
+            ) @connection(key: "TodoList_todos") {
+                pageInfo {
+                    hasNextPage
+                    endCursor
+                }
+                edges {
+                    cursor
+                    node {
+                        id
+                        ...TodoItem_todo
                     }
-                    edges {
-                        node {
-                            id
-                            ${TodoItem.getFragment( 'todo' )}
-                        }
-                    }
-                    count
-                    ${DeleteTodoMutation.getFragment( 'todos' )}
+                }
+
+            }
+        }
+    `,
+    {
+        direction: 'forward',
+        getConnectionFromProps( props ) {
+            return props.viewer && props.viewer.todos;
+        },
+        getFragmentVariables( prevVars, totalCount ) {
+            return {
+                ...prevVars,
+                count: totalCount,
+            };
+        },
+        getVariables( props, { count, cursor }, fragmentVariables ) {
+            console.log( props, count, cursor, fragmentVariables );
+            return {
+                count,
+                cursor,
+            };
+        },
+        query: graphql`
+            query TodoListPaginationQuery(
+            $count: Int!
+            $cursor: String
+            ) {
+                viewer {
+                    ...TodoList_viewer
                 }
             }
         `,
     },
-})
+)
+
+// @TODO Handle QueryRenderer duplication
+const TodoListQueryRender = () => {
+    return (
+        <Relay.QueryRenderer
+            environment={environment}
+            query={graphql`
+                query TodoListQuery (
+                  $count: Int!
+                  $cursor: String
+                ) {
+                    viewer {
+                        ...TodoList_viewer
+                    }
+                }
+            `}
+            variables={initialVariables}
+            render={( { error, props } ) => {
+
+                if ( error ) {
+
+                    // @TODO do something on error
+
+                } else if ( props ) {
+
+                    return <TodoListPaginationContainer viewer={props.viewer}/>
+                }
+
+                return <Text>Loading...</Text>
+            }}
+        />
+    )
+}
+
+export default hoistStatics( TodoListQueryRender, TodoList )

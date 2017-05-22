@@ -1,64 +1,47 @@
-import Relay from 'react-relay'
+import { commitMutation, graphql } from 'react-relay'
 
-export default class ChangeTodoTextMutation extends Relay.Mutation {
-
-    static fragments = {
-        todo: () => Relay.QL`
-            fragment on Todo {
+const mutation = graphql`
+    mutation ChangeTodoTextMutation( $input: ChangeTodoTextInput! ) {
+        ChangeTodoText(input: $input) {
+            error
+            todo {
                 id
                 text
             }
-        `
-    }
-
-    getMutation() {
-        return Relay.QL`mutation {
-            ChangeTodoText
-        }`
-    }
-
-    getVariables() {
-        return {
-            id  : this.props.todo.id,
-            text: this.props.text
         }
     }
+`
 
-    getFatQuery() {
-        return Relay.QL`
-            fragment on ChangeTodoTextPayload {
-                todo {
-                    text
-                }
-                error
-            }
-        `
-    }
-
-    getConfigs() {
-        return [{
-            type: 'FIELDS_CHANGE',
-            fieldIDs: {
-                todo : this.props.todo.id,
-            }
-        }, {
-            type : 'REQUIRED_CHILDREN',
-            children: [
-                Relay.QL`
-                    fragment on ChangeTodoTextPayload {
-                        error,
-                    }
-                `,
-            ],
-        }]
-    }
-
-    getOptimisticResponse() {
-        return {
+function getOptimisticResponse( text, todo ) {
+    return {
+        ChangeTodoText: {
+            error: null,
             todo: {
-                id: this.props.todo.id,
-                text: this.props.text,
+                id: todo.id,
+                text,
             },
-        }
+        },
     }
 }
+function commit(
+    environment,
+    text,
+    todo,
+    onCompleted,
+    onError,
+) {
+    return commitMutation(
+        environment,
+        {
+            mutation,
+            variables: {
+                input: { text, id: todo.id },
+            },
+            optimisticResponse: () => getOptimisticResponse( text, todo ),
+            onCompleted,
+            onError,
+        }
+    )
+}
+
+export default { commit }
