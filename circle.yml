@@ -8,7 +8,7 @@ jobs:
       - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
     working_directory: ~/app
     docker:
-      - image: entria/react-native-android:0.1.8
+      - image: entria/react-native-android:0.1.9
     steps:
       - checkout
       - restore_cache:
