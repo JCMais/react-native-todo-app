@@ -1,0 +1,36 @@
+version: 2
+executorType: docker
+jobs:
+  build:
+    environment:
+      - NODE_ENV: "production"
+    working_directory: ~/app
+    docker:
+      - image: webcuisine/gitlab-ci-react-native-android
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v1-simpletodo-npm
+            - v1-simpletodo-android-{{ .Branch }}-{{ .Environment.CIRCLE_PROJECT_USERNAME }}-{{ .Environment.CIRCLE_PROJECT_REPONAME }}
+      - run:
+          name: Build APK
+          command: |
+            cp .env.example .env
+            cd android && ./gradlew assembleRelease
+      - save_cache:
+          key: v1-simpletodo-npm
+          paths:
+            - node_modules/
+      - save_cache:
+          key: v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules/
+      - save_cache:
+          key: v1-simpletodo-android-{{ .Branch }}-{{ .Environment.CIRCLE_PROJECT_USERNAME }}-{{ .Environment.CIRCLE_PROJECT_REPONAME }}
+          paths:
+            - android/.gradle/
+      - store_artifacts:
+          path: android/app/build/outputs/apk/
+          destination: android
