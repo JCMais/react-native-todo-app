@@ -6,28 +6,11 @@ jobs:
       # https://circleci.com/docs/1.0/oom/#out-of-memory-errors-in-android-builds
       - JAVA_OPTS: "-Xms512m -Xmx1024m"
       - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
-      - TERM: "dumb"
     working_directory: ~/app
     docker:
-      - image: entria/react-native-android:0.1.7
+      - image: entria/react-native-android:0.1.8
     steps:
       - checkout
-      - run:
-          name: Install apt packages
-          command: |
-            apt-get update
-            apt-get install -y python python-dev python-pip python-virtualenv autoconf automake build-essential
-      - run:
-          name: Install watchman
-          command: |
-            cd ../
-            git clone https://github.com/facebook/watchman.git
-            cd watchman
-            git checkout v4.7.0  # the latest stable release
-            ./autogen.sh
-            ./configure
-            make
-            make install
       - restore_cache:
           keys:
             - v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
