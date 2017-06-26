@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native'
 
-import colorPalette from '../../colorPalette'
+import colorPalette from '../../Theme'
 import color from 'color'
 
 export default StyleSheet.create({

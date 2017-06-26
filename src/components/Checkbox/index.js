@@ -5,7 +5,7 @@ import {
 } from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
-import colorPalette from '../../colorPalette'
+import colorPalette from '../../Theme'
 import TouchableItem from '../TouchableItem'
 import styles from './styles'
 

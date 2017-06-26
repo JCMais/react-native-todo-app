@@ -8,23 +8,16 @@ import {
     TextInput,
     View
 } from 'react-native'
-import {
-    NavigationActions,
-    withNavigation
-} from 'react-navigation'
+import { NavigationActions } from 'react-navigation'
 import Relay, { graphql } from 'react-relay'
-import hoistStatics from 'hoist-non-react-statics'
 
 import errors from '../../../common/errors'
-import colorPalette from '../../colorPalette'
+import colorPalette from '../../Theme'
 import FadeInOutView from '../../components/FadeInOutView'
 import { login } from '../../auth'
-import environment from '../../util/createRelayEnvironment'
+import { createQueryRenderer } from '../../relay/utils'
 
-import {
-    isValidEmail,
-    isValidLength
-} from '../../util/validator'
+import { isValidEmail, isValidLength } from '../../util/validator'
 
 import LoginWithEmailMutation from './mutation/LoginWithEmailMutation'
 import styles from './styles'
@@ -37,7 +30,6 @@ type Props = {
     }
 }
 
-@withNavigation
 class Login extends Component {
 
     static navigationOptions = {
@@ -68,7 +60,8 @@ class Login extends Component {
             index  : 1,
             actions: [
                 NavigationActions.navigate( {
-                    routeName: 'Login', params: {
+                    routeName: 'Login',
+                    params: {
                         email            : '',
                         password         : '',
                         redirectedOnLogin: true,
@@ -79,17 +72,6 @@ class Login extends Component {
         } )
 
         this.props.navigation.dispatch( resetAction )
-    }
-
-    componentWillMount() {
-
-        const {viewer, navigation} = this.props
-
-        // user already logged in
-        if ( viewer && viewer.email && !( navigation.state.params.redirectedOnLogin ) ) {
-
-            this.navigateToTodoList()
-        }
     }
 
     onEmailInputChange = ( email ) => {
@@ -207,34 +189,12 @@ const LoginFragmentContainer = Relay.createFragmentContainer(
     `,
 )
 
-// https://facebook.github.io/relay/docs/query-renderer.html
-// @TODO Handle QueryRenderer duplication
-const LoginQueryRenderer = () => {
-    return (
-        <Relay.QueryRenderer
-            environment={environment}
-            query={graphql`
-                query LoginQuery {
-                    viewer {
-                        ...Login_viewer
-                    }
-                }
-            `}
-            render={( { error, props } ) => {
-
-                if ( error ) {
-
-                    // @TODO do something on error
-
-                } else if ( props ) {
-
-                    return <LoginFragmentContainer viewer={props.viewer} />
-                }
-
-                return <Text>Loading...</Text>
-            }}
-        />
-    )
-}
-
-export default hoistStatics( LoginQueryRenderer, Login )
+export default createQueryRenderer(LoginFragmentContainer, Login, {
+    query: graphql`
+        query LoginQuery {
+            viewer {
+                ...Login_viewer
+            }
+        }
+    `,
+});

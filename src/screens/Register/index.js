@@ -13,15 +13,14 @@ import {
     withNavigation
 } from 'react-navigation'
 import Relay, { graphql } from 'react-relay'
-import hoistStatics from 'hoist-non-react-statics'
 
+import { createQueryRenderer } from '../../relay/utils';
 import errors from '../../../common/errors'
 import { login } from '../../auth'
-import colorPalette from '../../colorPalette'
+import colorPalette from '../../Theme'
 
 import FadeInOutView from '../../components/FadeInOutView'
 
-import environment from '../../util/createRelayEnvironment'
 import {
     isValidEmail,
     isValidLength
@@ -38,7 +37,6 @@ type Props = {
     }
 }
 
-@withNavigation
 class Register extends Component {
 
     static navigationOptions = {
@@ -234,33 +232,12 @@ const RegisterFragmentContainer = Relay.createFragmentContainer(
     `
 )
 
-// @TODO Handle QueryRenderer duplication
-const RegisterQueryRender = () => {
-    return (
-        <Relay.QueryRenderer
-            environment={environment}
-            query={graphql`
-                query RegisterQuery {
-                    viewer {
-                        ...Register_viewer
-                    }
-                }
-            `}
-            render={( { error, props } ) => {
-
-                if ( error ) {
-
-                    // @TODO do something on error
-
-                } else if ( props ) {
-
-                    return <RegisterFragmentContainer viewer={props.viewer} />
-                }
-
-                return <Text>Loading...</Text>
-            }}
-        />
-    )
-}
-
-export default hoistStatics( RegisterQueryRender, Register )
+export default createQueryRenderer( RegisterFragmentContainer, Register, {
+    query: graphql`
+        query RegisterQuery {
+            viewer {
+                ...Register_viewer
+            }
+        }
+    `
+})

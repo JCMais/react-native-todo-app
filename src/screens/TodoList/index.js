@@ -1,9 +1,9 @@
 // @flow
 
-import hoistStatics from 'hoist-non-react-statics'
 import React, { Component } from 'react'
 import {
     Alert,
+    BackHandler,
     Button,
     ListView,
     RefreshControl,
@@ -19,13 +19,12 @@ import {
 } from 'react-navigation'
 import Relay, { graphql } from 'react-relay'
 
+import { createQueryRenderer } from '../../relay/utils';
 import errors from '../../../common/errors'
 import { logout } from '../../auth'
-import colorPalette from '../../colorPalette'
+import colorPalette from '../../Theme'
 import HeaderBackButton from '../../components/HeaderBackButton'
 import HeaderIconButton from '../../components/HeaderIconButton'
-
-import environment from '../../util/createRelayEnvironment'
 
 import TodoItem from './components/TodoItem'
 
@@ -52,53 +51,53 @@ const todosDataSource = new ListView.DataSource( { rowHasChanged: ( todo1, todo2
 
 const initialVariables = { count: 10, cursor: null }
 
-@withNavigation
+const askForLogoutAndGoBackToLoginScreen = ( navigation ) => {
+    Alert.alert(
+        'Are you sure?',
+        'Do you really want to logout?',
+        [
+            {
+                text: 'Logout',
+                onPress: () => logout().then( () => {
+
+                    // not using navigation.goBack( null ) because we want to reset the params
+
+                    const resetAction = NavigationActions.reset( {
+                        index: 0,
+                        actions: [
+                            NavigationActions.navigate( {
+                                routeName: 'Login', params: {
+                                    email: '',
+                                    password: '',
+                                    redirectedOnLogin: false,
+                                },
+                            } ),
+                        ],
+                    } )
+
+                    navigation.dispatch( resetAction )
+
+                } ).catch( err => {
+
+                    Alert.alert(
+                        'Oops',
+                        'Something went wrong: ' + err.toString(),
+                    )
+                } ),
+            },
+            {
+                text: 'Cancel',
+            },
+        ],
+    )
+}
+
 class TodoList extends Component {
 
     static navigationOptions = ( { navigation } ) => ({
         title: 'Todo List',
         headerLeft: <HeaderBackButton
-            onPress={() => {
-
-                Alert.alert(
-                    'Are you sure?',
-                    'Do you really want to logout?',
-                    [
-                        {
-                            text: 'Logout',
-                            onPress: () => logout().then( () => {
-
-                                // not using navigation.goBack( null ) because we want to reset the params
-
-                                const resetAction = NavigationActions.reset( {
-                                    index: 0,
-                                    actions: [
-                                        NavigationActions.navigate( {
-                                            routeName: 'Login', params: {
-                                                email: '',
-                                                password: '',
-                                                redirectedOnLogin: false,
-                                            },
-                                        } ),
-                                    ],
-                                } )
-
-                                navigation.dispatch( resetAction )
-
-                            } ).catch( err => {
-
-                                Alert.alert(
-                                    'Oops',
-                                    'Something went wrong: ' + err.toString(),
-                                )
-                            } ),
-                        },
-                        {
-                            text: 'Cancel',
-                        },
-                    ],
-                )
-            }}
+            onPress={() => askForLogoutAndGoBackToLoginScreen( navigation )}
         />,
         headerRight: navigation.state.params.right,
     })
@@ -116,6 +115,20 @@ class TodoList extends Component {
             selectedTodosIds: [],
             currentTodoWithOpenedSwipe: null,
         }
+    }
+
+    componentWillMount() {
+        this._backHandlerListener = BackHandler.addEventListener(
+            'hardwareBackPress',
+            () => {
+                askForLogoutAndGoBackToLoginScreen( this.props.navigation )
+                return true
+            },
+        );
+    }
+
+    componentWillUnmount() {
+        BackHandler.removeEventListener( this._backHandlerListener )
     }
 
     componentWillUpdate( nextProps, nextState: State ) {
@@ -464,37 +477,16 @@ const TodoListPaginationContainer = Relay.createPaginationContainer(
     },
 )
 
-// @TODO Handle QueryRenderer duplication
-const TodoListQueryRender = () => {
-    return (
-        <Relay.QueryRenderer
-            environment={environment}
-            query={graphql`
-                query TodoListQuery (
-                  $count: Int!
-                  $cursor: String
-                ) {
-                    viewer {
-                        ...TodoList_viewer
-                    }
-                }
-            `}
-            variables={initialVariables}
-            render={( { error, props } ) => {
-
-                if ( error ) {
-
-                    // @TODO do something on error
-
-                } else if ( props ) {
-
-                    return <TodoListPaginationContainer viewer={props.viewer}/>
-                }
-
-                return <Text>Loading...</Text>
-            }}
-        />
-    )
-}
-
-export default hoistStatics( TodoListQueryRender, TodoList )
+export default createQueryRenderer(TodoListPaginationContainer, TodoList, {
+    query: graphql`
+        query TodoListQuery (
+          $count: Int!
+          $cursor: String
+        ) {
+            viewer {
+                ...TodoList_viewer
+            }
+        }
+    `,
+    variables: initialVariables,
+})

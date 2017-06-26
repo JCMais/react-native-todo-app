@@ -1,6 +1,8 @@
 import { commitMutation, graphql } from 'react-relay/compat'
 import { ConnectionHandler } from 'relay-runtime'
 
+import { removeUpdater } from '../../../relay/utils'
+
 const mutation = graphql`
     mutation DeleteTodoMutation( $input: DeleteTodoInput! ) {
         DeleteTodo(input: $input) {
@@ -34,10 +36,10 @@ function commit( environment, todosIds, user, onCompleted, onError ) {
             },
             updater: ( store ) => {
                 const payload = store.getRootField( 'DeleteTodo' )
-                sharedUpdater( store, user, payload.getValue( 'deletedId' ) )
+                removeUpdater( store, user.id, 'TodoList_todos', payload.getValue( 'deletedId' ) )
             },
             optimisticUpdater: ( store ) => {
-                sharedUpdater( store, user, todosIds )
+                removeUpdater( store, user.id, 'TodoList_todos', todosIds )
             },
             onCompleted,
             onError,

@@ -25,7 +25,7 @@ async function fetchQuery( operation, variables, cacheConfig, uploadables ) {
     }
 
     if ( token ) {
-        headers.Authorization = token;
+        headers.Authorization = token
     }
 
     return fetch( 'http://localhost:5000/graphql', {
@@ -36,15 +36,15 @@ async function fetchQuery( operation, variables, cacheConfig, uploadables ) {
             variables,
         }),
     }).then( response => {
-        return response.json();
-    });
+        return response.json()
+    })
 }
 
 // Create a network layer from the fetch function
-const network = Network.create( fetchQuery );
+const network = Network.create( fetchQuery )
 
-const source = new RecordSource();
-const store  = new Store( source );
+const source = new RecordSource()
+const store  = new Store( source )
 
 function handlerProvider( handle ) {
     switch ( handle ) {
@@ -54,13 +54,13 @@ function handlerProvider( handle ) {
     }
     throw new Error(
         `handlerProvider: No handler provided for ${handle}`
-    );
+    )
 }
 
 const env = new Environment( {
     network,
     store,
     handlerProvider,
-} );
+} )
 
 export default env

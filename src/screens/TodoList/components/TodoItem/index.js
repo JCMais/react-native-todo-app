@@ -13,7 +13,7 @@ import {
 } from 'react-native'
 import Relay, { graphql } from 'react-relay'
 
-import colorPalette from '../../../../colorPalette'
+import colorPalette from '../../../../Theme'
 import Checkbox from '../../../../components/Checkbox'
 import errors from '../../../../../common/errors'
 import ChangeTodoTextMutation from '../../mutation/ChangeTodoTextMutation'
