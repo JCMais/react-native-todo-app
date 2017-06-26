@@ -3,7 +3,6 @@ executorType: docker
 jobs:
   build:
     environment:
-      - NODE_ENV: "production"
       - TERM: "dumb"
     working_directory: ~/app
     docker:
