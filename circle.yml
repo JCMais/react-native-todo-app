@@ -2,6 +2,8 @@ version: 2
 executorType: docker
 jobs:
   build:
+    environment:
+      - NODE_ENV: "production"
     working_directory: ~/app
     docker:
       - image: webcuisine/gitlab-ci-react-native-android
@@ -16,7 +18,8 @@ jobs:
           name: Build APK
           command: |
             cp .env.example .env
-            cd android && ./gradlew assembleRelease
+            cd android
+            chmod +x ./gradlew && ./gradlew assembleRelease
       - save_cache:
           key: v1-simpletodo-npm
           paths:
