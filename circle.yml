@@ -2,8 +2,6 @@ version: 2
 executorType: docker
 jobs:
   build:
-    environment:
-      - NODE_ENV: "production"
     working_directory: ~/app
     docker:
       - image: webcuisine/gitlab-ci-react-native-android
