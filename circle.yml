@@ -16,6 +16,9 @@ jobs:
             - v1-simpletodo-npm
             - v1-simpletodo-android-{{ .Branch }}-{{ .Environment.CIRCLE_PROJECT_USERNAME }}-{{ .Environment.CIRCLE_PROJECT_REPONAME }}
       - run:
+          name: Install Dependencies
+          command: yarn install
+      - run:
           name: Build APK
           command: |
             cp .env.example .env
