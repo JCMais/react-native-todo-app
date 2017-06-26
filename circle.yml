@@ -10,10 +10,20 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install python
+          name: Install apt packages
           command: |
             apt-get update
-            apt-get install -y python python-dev python-pip python-virtualenv
+            apt-get install -y python python-dev python-pip python-virtualenv autoconf automake build-essential
+      - run:
+          name: Install watchman
+          command: |
+            git clone https://github.com/facebook/watchman.git
+            cd watchman
+            git checkout v4.7.0  # the latest stable release
+            ./autogen.sh
+            ./configure
+            make
+            make install
       - restore_cache:
           keys:
             - v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
