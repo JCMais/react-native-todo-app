@@ -3,6 +3,7 @@ executorType: docker
 jobs:
   build:
     environment:
+      - JAVA_OPTS: "-Xms512m -Xmx1024m"
       - TERM: "dumb"
     working_directory: ~/app
     docker:
@@ -29,7 +30,7 @@ jobs:
           keys:
             - v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
             - v1-simpletodo-npm
-            - v1-simpletodo-android-{{ .Branch }}-{{ .Environment.CIRCLE_PROJECT_USERNAME }}-{{ .Environment.CIRCLE_PROJECT_REPONAME }}
+            - v1-simpletodo-android-{{ .Branch }}
       - run:
           name: Install Dependencies
           command: yarn install
@@ -51,9 +52,10 @@ jobs:
           paths:
             - node_modules/
       - save_cache:
-          key: v1-simpletodo-android-{{ .Branch }}-{{ .Environment.CIRCLE_PROJECT_USERNAME }}-{{ .Environment.CIRCLE_PROJECT_REPONAME }}
+          key: v1-simpletodo-android-{{ .Branch }}
           paths:
             - android/.gradle/
+            - /sdk/
       - store_artifacts:
           path: android/app/build/outputs/apk/
           destination: android
