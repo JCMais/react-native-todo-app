@@ -3,11 +3,13 @@ executorType: docker
 jobs:
   build:
     environment:
+      # https://circleci.com/docs/1.0/oom/#out-of-memory-errors-in-android-builds
       - JAVA_OPTS: "-Xms512m -Xmx1024m"
+      - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
       - TERM: "dumb"
     working_directory: ~/app
     docker:
-      - image: webcuisine/gitlab-ci-react-native-android
+      - image: entria/react-native-android
     steps:
       - checkout
       - run:
@@ -30,7 +32,7 @@ jobs:
           keys:
             - v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
             - v1-simpletodo-npm
-            - v1-simpletodo-android-{{ .Branch }}
+            - v2-simpletodo-android-{{ .Branch }}
       - run:
           name: Install Dependencies
           command: yarn install
@@ -52,10 +54,10 @@ jobs:
           paths:
             - node_modules/
       - save_cache:
-          key: v1-simpletodo-android-{{ .Branch }}
+          key: v2-simpletodo-android-{{ .Branch }}
           paths:
             - android/.gradle/
-            - /sdk/
+            - /opt/android-sdk-linux
       - store_artifacts:
           path: android/app/build/outputs/apk/
           destination: android
