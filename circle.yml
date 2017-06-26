@@ -4,6 +4,7 @@ jobs:
   build:
     environment:
       - NODE_ENV: "production"
+      - TERM: "dumb"
     working_directory: ~/app
     docker:
       - image: webcuisine/gitlab-ci-react-native-android
