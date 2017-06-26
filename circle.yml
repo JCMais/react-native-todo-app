@@ -9,7 +9,7 @@ jobs:
       - TERM: "dumb"
     working_directory: ~/app
     docker:
-      - image: entria/react-native-android
+      - image: entria/react-native-android:0.1.6
     steps:
       - checkout
       - run:
