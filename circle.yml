@@ -6,16 +6,33 @@ jobs:
       # https://circleci.com/docs/1.0/oom/#out-of-memory-errors-in-android-builds
       - JAVA_OPTS: "-Xms512m -Xmx1024m"
       - GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
+      - AWS_REGION: "us-east-1"
     working_directory: ~/app
     docker:
       - image: entria/react-native-android
     steps:
       - checkout
+      - run:
+          name: Test
+          command: |
+            ls -al /opt/android-sdk-linux
+            exit 42
       - restore_cache:
           keys:
             - v1-simpletodo-npm-{{ .Branch }}-{{ checksum "yarn.lock" }}
             - v1-simpletodo-npm
             - v2-simpletodo-android-{{ .Branch }}
+      - run:
+          name: Install AWS CLI
+          command: |
+            apt-get -y install software-properties-common
+            apt-add-repository universe
+            apt-get update
+            apt-get -y install python-pip
+            pip install --upgrade awscli
+            aws --version
+            aws configure set default.region $AWS_REGION
+            aws configure set default.output json
       - run:
           name: Install Dependencies
           command: yarn install
@@ -28,6 +45,18 @@ jobs:
             cp .env.example .env
             cd android
             chmod +x ./gradlew && ./gradlew assembleRelease
+      # {app-name}/{year}/{env}/{app-version}-{commit-hash}.apk
+      # https://stackoverflow.com/a/25275809/710693
+      # aapt dump badging
+      - run:
+          name: Upload APK to S3
+          command: |
+            SHORT_SHA1=$(echo $CIRCLE_SHA1 | cut -c -7)
+            aws s3 cp android/app/build/outputs/apk/ \
+              s3://jcmais/circleci/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BRANCH/ \
+              --include "*.apk" \
+              --acl public-read
+              --metadata KeyName1=string,KeyName2=string
       - save_cache:
           key: v1-simpletodo-npm
           paths:
