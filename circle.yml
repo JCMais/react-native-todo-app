@@ -15,12 +15,7 @@ jobs:
       - run:
           name: Test
           command: |
-            echo "build tools:"
-            ls -al $ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/
-            echo "platform tools:"
-            ls -al /opt/android-sdk-linux/platform-tools
-            echo "tools:"
-            ls -al /opt/android-sdk-linux/tools
+            aapt dump badging android/app/build/outputs/apk/app-release-unsigned.apk
             exit 42
       - restore_cache:
           keys:
