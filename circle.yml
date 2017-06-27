@@ -51,9 +51,8 @@ jobs:
                           android/app/build/outputs/apk/app-release-unsigned.apk | \
                           grep 'versionName=' | awk '/package/ {print(substr($4, 13))}' | tr -d "'")
 
-            aws s3 cp android/app/build/outputs/apk/ \
+            aws s3 cp android/app/build/outputs/apk/app-release-unsigned.apk \
               s3://jcmais/circleci/$CIRCLE_PROJECT_REPONAME/$YEAR/$CIRCLE_BRANCH/$APP_VERSION-$SHORT_SHA1.apk \
-              --include "*.apk" \
               --acl public-read \
               --metadata app_version=$APP_VERSION,commit=$CIRCLE_SHA1,build=$CIRCLE_BUILD_NUM
       - save_cache:
