@@ -15,7 +15,7 @@ jobs:
       - run:
           name: Test
           command: |
-            aapt dump badging android/app/build/outputs/apk/app-release-unsigned.apk
+            $ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/aapt dump badging android/app/build/outputs/apk/app-release-unsigned.apk
             exit 42
       - restore_cache:
           keys:
