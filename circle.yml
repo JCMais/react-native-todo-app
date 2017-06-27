@@ -15,7 +15,12 @@ jobs:
       - run:
           name: Test
           command: |
-            ls -al /opt/android-sdk-linux
+            echo "build tools:"
+            ls -al /opt/android-sdk-linux/build-tools
+            echo "platform tools:"
+            ls -al /opt/android-sdk-linux/platform-tools
+            echo "tools:"
+            ls -al /opt/android-sdk-linux/tools
             exit 42
       - restore_cache:
           keys:
