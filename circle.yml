@@ -38,31 +38,24 @@ jobs:
             cp .env.example .env
             cd android
             chmod +x ./gradlew && ./gradlew assembleRelease
-      - run:
-          name: Test
-          command: |
-            $ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/aapt dump badging \
-              android/app/build/outputs/apk/app-release-unsigned.apk | \
-              grep 'versionName=' | awk '/package/ {print(substr($4, 13))}' | tr -d "'"
-            exit 42
       # {app-name}/{year}/{env}/{app-version}-{commit-hash}.apk
       # https://stackoverflow.com/a/25275809/710693
-      # aapt dump badging
-      # package: name='com.ti.et.nspire.android' versionCode='1' versionName='1.0' platformBuildVersionName='7.1.1'
-      # # '/package/ {print($4)}'
+      # aapt dump badging output example:
+      # package: name='my.app.packagename' versionCode='1' versionName='1.0' platformBuildVersionName='7.1.1'
       - run:
           name: Upload APK to S3
           command: |
+            YEAR=$(date +"%Y")
             SHORT_SHA1=$(echo $CIRCLE_SHA1 | cut -c -7)
             APP_VERSION=$($ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/aapt dump badging \
                           android/app/build/outputs/apk/app-release-unsigned.apk | \
                           grep 'versionName=' | awk '/package/ {print(substr($4, 13))}' | tr -d "'")
 
             aws s3 cp android/app/build/outputs/apk/ \
-              s3://jcmais/circleci/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BRANCH/ \
+              s3://jcmais/circleci/$CIRCLE_PROJECT_REPONAME/$YEAR/$CIRCLE_BRANCH/$APP_VERSION-$SHORT_SHA1 \
               --include "*.apk" \
               --acl public-read
-              --metadata KeyName1=string,KeyName2=string
+              --metadata app_version=$APP_VERSION,commit=$CIRCLE_SHA1,build=$CIRCLE_BUILD_NUM
       - save_cache:
           key: v1-simpletodo-npm
           paths:
