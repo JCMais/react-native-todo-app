@@ -41,7 +41,9 @@ jobs:
       - run:
           name: Test
           command: |
-            $ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/aapt dump badging android/app/build/outputs/apk/app-release-unsigned.apk
+            $ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/aapt dump badging \
+              android/app/build/outputs/apk/app-release-unsigned.apk | \
+                grep 'versionName=' | awk -F: 'match($0,"versionName="){ print substr($2,RSTART+4)}' | tr -d "'"
             exit 42
       # {app-name}/{year}/{env}/{app-version}-{commit-hash}.apk
       # https://stackoverflow.com/a/25275809/710693
