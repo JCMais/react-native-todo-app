@@ -16,7 +16,7 @@ jobs:
           name: Test
           command: |
             echo "build tools:"
-            ls -al /opt/android-sdk-linux/build-tools
+            ls -al $ANDROID_SDK/build-tools/$ANDROID_BUILD_TOOLS_VERSION/
             echo "platform tools:"
             ls -al /opt/android-sdk-linux/platform-tools
             echo "tools:"
