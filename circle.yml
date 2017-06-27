@@ -21,10 +21,7 @@ jobs:
           name: Install AWS CLI
           command: |
             apt-get update
-            apt-get -y install software-properties-common
-            apt-add-repository universe
-            apt-get update
-            apt-get -y install python-pip
+            apt-get -y install software-properties-common python-pip
             pip install --upgrade awscli
             aws --version
             aws configure set default.region $AWS_REGION
