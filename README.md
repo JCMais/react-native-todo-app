@@ -1,7 +1,11 @@
-# React Native Relay Sample Todo App
+# React Native Relay Classic Sample Todo App
 
 This project is the result of a code challenge made for a job 
-  opportunity at [@entria](https://github.com/entria), and also as a self-learning project. 
+  opportunity at [@entria](https://github.com/entria), and also as a self-learning project, since I didn't know anything about React Native at the time. 
+
+It was made using Relay Classic, since at the time, it was the bleeding edge version, and yeah, I got the job using it.
+
+I've no plans on updating it any further, there is a relay-modern port on the [`feature/relay-modern`](https://github.com/JCMais/react-native-todo-app/tree/feature/relay-modern) branch. I'm keeping it only for historical reasons now.
 
 ### Server
 
